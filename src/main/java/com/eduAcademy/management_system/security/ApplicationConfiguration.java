@@ -1,5 +1,6 @@
 package com.eduAcademy.management_system.security;
 
+import com.eduAcademy.management_system.repository.ClubRepository;
 import com.eduAcademy.management_system.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,14 +18,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class ApplicationConfiguration {
     private final UserRepository userRepository;
+    private final ClubRepository clubRepository;
 
     @Bean
     public UserDetailsService userDetailsService() {
 
         return username -> {
             var user = userRepository.findByEmail(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-            System.out.println("Loaded User: " + user.getEmail());  // Add logging for debugging
+                    .orElse(null);
+
+            if (user == null) {
+                var club = clubRepository.findByEmail(username)
+                        .orElseThrow(() -> new UsernameNotFoundException("Club not found"));
+                System.out.println("Loaded Club: " + club.getEmail());
+                return club;
+            }
             return user;
         };    }
 

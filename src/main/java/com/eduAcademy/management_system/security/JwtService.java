@@ -1,5 +1,6 @@
 package com.eduAcademy.management_system.security;
 
+import com.eduAcademy.management_system.entity.Club;
 import com.eduAcademy.management_system.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -40,6 +41,9 @@ public class JwtService {
         if (userDetails instanceof User user){
             extractClaims.put("role",user.getRole().name());
         }
+//        if (userDetails instanceof Club club){
+//            extractClaims.put("role",club.getRole().name());
+//        }
       return Jwts.builder()
                 .setClaims(extractClaims)
                 .setSubject(userDetails.getUsername())

@@ -4,7 +4,9 @@ import com.eduAcademy.management_system.dto.AuthenticationRequeste;
 import com.eduAcademy.management_system.dto.AuthenticationResponse;
 import com.eduAcademy.management_system.dto.ChangePasswordRequest;
 import com.eduAcademy.management_system.dto.RegisterRequeste;
+import com.eduAcademy.management_system.entity.Club;
 import com.eduAcademy.management_system.entity.User;
+import com.eduAcademy.management_system.repository.ClubRepository;
 import com.eduAcademy.management_system.repository.UserRepository;
 import com.eduAcademy.management_system.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.security.SecureRandom;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +27,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final EmailService emailService;
+    private final ClubRepository clubRepository;
 
     public void register(RegisterRequeste requeste) {
         if (userRepository.findByEmail(requeste.getEmail()).isPresent()) {
@@ -41,36 +44,39 @@ public class AuthenticationService {
         userRepository.save(user);
     }
 
-    private String generateActivationCode(int length) {
-        String characters="0123456789";
-        StringBuilder codeBuilder=new StringBuilder();
-        SecureRandom random=new SecureRandom();
-        for (int i=0 ; i<length ;i++){
-            int randomIndex=random.nextInt(characters.length());
-            codeBuilder.append(characters.charAt(randomIndex));
-        }
-        return codeBuilder.toString();
-    }
-
-
     public AuthenticationResponse authenticate(AuthenticationRequeste requeste) {
-        if (userRepository.findByEmail(requeste.getEmail()).isEmpty()) {
-            throw new IllegalArgumentException("L'email existe pas.");
+        Optional<User> userOpt = userRepository.findByEmail(requeste.getEmail());
+        Optional<Club> clubOpt = clubRepository.findByEmail(requeste.getEmail());
+
+        if (userOpt.isEmpty() && clubOpt.isEmpty()) {
+            throw new IllegalArgumentException("L'email n'existe pas.");
+        }
+        if (userOpt.isPresent()) {
+            var user = userOpt.get();
+
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            requeste.getEmail(),
+                            requeste.getPassword()
+                    )
+            );
+            var jwtToken = jwtService.gerenateToken(user);
+            return AuthenticationResponse.builder().token(jwtToken).build();
         }
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        requeste.getEmail(),
-                        requeste.getPassword())
-        );
+        if (clubOpt.isPresent()) {
+            var club = clubOpt.get();
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            requeste.getEmail(),
+                            requeste.getPassword()
+                    )
+            );
+            var jwtToken = jwtService.gerenateToken(club);
 
-        var user=userRepository.findByEmail(requeste.getEmail()).orElseThrow();
-        var jwtToken=jwtService.gerenateToken(user);
-        System.out.println(jwtToken);
-
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+            return AuthenticationResponse.builder().token(jwtToken).build();
+        }
+        throw new IllegalArgumentException("Erreur d'authentification.");
     }
 
     public void  changePassword(ChangePasswordRequest request, Principal userConnect) {

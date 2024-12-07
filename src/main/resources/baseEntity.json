@@ -1,0 +1,18 @@
+{
+  "reference": "client-ref",
+  "frontPath": "spotify-app",
+  "clientName": "Club Arena",
+  "contactEmail": "info@clubarena.com",
+
+  "features": {
+    "enableMembership": true,
+    "enableNotifications": true,
+    "enablePayments": true,
+    "enableScheduling": false,
+    "enableForum": true,
+    "enablePrivateMessaging": false
+  },
+  "accessControl": {
+    "Roles": ["admin", "superAdmin"]
+  }
+}
