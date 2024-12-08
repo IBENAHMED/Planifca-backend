@@ -1,11 +1,14 @@
 package com.eduAcademy.management_system.service;
 
-import com.eduAcademy.management_system.dto.ClubDTO;
-import com.eduAcademy.management_system.dto.ConfirmPassword;
+import com.eduAcademy.management_system.dto.ClubRequestDto;
+import com.eduAcademy.management_system.entity.Club;
 import jakarta.mail.MessagingException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ClubServiceInterface {
-    ClubDTO createClub(ClubDTO clubDTO) throws MessagingException;
-    void activateAccount(ConfirmPassword request);
+    ClubRequestDto createClub(ClubRequestDto clubRequestDto) throws MessagingException;
+    void activateAccount(String password,String confirmPassword,String token);
     String generateUniqueReference();
+    Page<Club> getClubs(int size, int page);
 }

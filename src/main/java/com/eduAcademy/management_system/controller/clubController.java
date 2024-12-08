@@ -1,17 +1,16 @@
 package com.eduAcademy.management_system.controller;
 
-import com.eduAcademy.management_system.dto.ClubDTO;
-import com.eduAcademy.management_system.dto.ConfirmPassword;
+import com.eduAcademy.management_system.dto.ActivationAccountRequestDto;
+import com.eduAcademy.management_system.dto.ClubRequestDto;
+import com.eduAcademy.management_system.dto.ClubResponseDto;
 import com.eduAcademy.management_system.entity.Club;
-import com.eduAcademy.management_system.entity.ConfirmationToken;
 import com.eduAcademy.management_system.mapper.ClubMapper;
 import com.eduAcademy.management_system.repository.ClubRepository;
 import com.eduAcademy.management_system.service.ClubService;
 import com.eduAcademy.management_system.service.ConfigurationClientService;
-import com.eduAcademy.management_system.service.ConfirmationTokenService;
-import com.eduAcademy.management_system.service.EmailService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +20,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/club")
+@RequestMapping("/api/internal/club")
 public class clubController {
 
     private final ClubService clubService;
@@ -31,11 +30,13 @@ public class clubController {
 
     @PostMapping("newClub")
     @Transactional
-    public ResponseEntity<?> createClub(@RequestBody ClubDTO clubDTO) {
+    public ResponseEntity<?> createClub(@RequestBody ClubRequestDto request) {
         try {
-            ClubDTO club =clubService.createClub(clubDTO);
-            configurationClientService.createClientConfigFile(club);
-            return ResponseEntity.status(HttpStatus.CREATED).body(club);
+            ClubRequestDto clubRequestDto =clubService.createClub(request);
+            Club club=clubMapper.ClubDTOToClub(clubRequestDto);
+            ClubResponseDto clubResponseDto =clubMapper.ClubToClubDtoResponse(club);
+            configurationClientService.createClientConfigFile(clubRequestDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(clubResponseDto);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error while creating the club configuration file : " + e.getMessage());
@@ -46,27 +47,37 @@ public class clubController {
     }
 
     @GetMapping("/{ref}")
-    public ResponseEntity<ClubDTO> getClubByRef(@PathVariable String ref) {
+    public ResponseEntity<ClubResponseDto> getClubByRef(@PathVariable String ref) {
         Optional<Club> clubOptional = clubRepository.findByReference(ref);
 
         if (clubOptional.isPresent()) {
-            ClubDTO clubDTO = clubMapper.ClubToClubDTO(clubOptional.get());
-            return ResponseEntity.ok(clubDTO);
+            ClubResponseDto clubResponseDto = clubMapper.ClubToClubDtoResponse(clubOptional.get());
+            return ResponseEntity.ok(clubResponseDto);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
     @PostMapping("/activate")
-    public ResponseEntity<String> activateAccount(@RequestBody ConfirmPassword request) {
+    public ResponseEntity<String> activateAccount(@RequestBody ActivationAccountRequestDto request) {
         try {
-            clubService.activateAccount(request);
+
+            clubService.activateAccount(request.getPassword(),request.getConfirmPassword(),request.getToken());
             return ResponseEntity.status(HttpStatus.ACCEPTED).body("Account activated");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur interne du serveur.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error. Please try again later.");
         }
+    }
+
+    @GetMapping("allClubs")
+    public ResponseEntity<Page<Club>> getClubs(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        Page<Club> clubs = clubService.getClubs(page, size);
+        return ResponseEntity.ok(clubs);
     }
 
 

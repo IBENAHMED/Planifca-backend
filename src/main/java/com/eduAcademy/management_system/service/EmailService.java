@@ -19,7 +19,6 @@ public class EmailService {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "UTF-8");
 
-        // Contenu HTML de l'email avec le lien d'activation
         String emailContent = "<html>" +
                 "<body>" +
                 "<p>Bonjour,</p>" +
@@ -29,12 +28,9 @@ public class EmailService {
                 "</body>" +
                 "</html>";
 
-        // Configurer le MimeMessage
-        mimeMessageHelper.setText(emailContent, true); // `true` pour indiquer que c'est du HTML
+        mimeMessageHelper.setText(emailContent, true);
         mimeMessageHelper.setTo(to);
-        mimeMessageHelper.setSubject("Activation de votre compte"); // Sujet de l'email
+        mimeMessageHelper.setSubject("Activation de votre compte");
         mimeMessageHelper.setFrom("no-reply@gmail.com");
-
-        // Envoyer l'email
         mailSender.send(mimeMessage);
     }}

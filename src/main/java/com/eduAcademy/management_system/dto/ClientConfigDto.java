@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-public class ClientConfig {
+public class ClientConfigDto {
     private String contactEmail;
     private String clientName;
     private String frontPath;

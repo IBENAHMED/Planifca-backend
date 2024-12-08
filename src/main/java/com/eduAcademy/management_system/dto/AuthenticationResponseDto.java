@@ -1,13 +1,14 @@
 package com.eduAcademy.management_system.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ConfirmPassword {
-    private String password;
+@Builder
+public class AuthenticationResponseDto {
     private String token;
 }

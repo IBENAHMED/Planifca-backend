@@ -49,8 +49,6 @@ public class Club implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
-    @OneToOne(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
-    private ConfirmationToken confirmationToken;
 
 
 

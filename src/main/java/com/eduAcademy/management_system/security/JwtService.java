@@ -41,9 +41,6 @@ public class JwtService {
         if (userDetails instanceof User user){
             extractClaims.put("role",user.getRole().name());
         }
-//        if (userDetails instanceof Club club){
-//            extractClaims.put("role",club.getRole().name());
-//        }
       return Jwts.builder()
                 .setClaims(extractClaims)
                 .setSubject(userDetails.getUsername())

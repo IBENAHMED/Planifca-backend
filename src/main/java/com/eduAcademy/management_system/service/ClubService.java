@@ -1,24 +1,23 @@
 package com.eduAcademy.management_system.service;
 
-import com.eduAcademy.management_system.dto.ClubDTO;
-import com.eduAcademy.management_system.dto.ConfirmPassword;
+import com.eduAcademy.management_system.dto.ClubRequestDto;
 import com.eduAcademy.management_system.entity.Club;
-import com.eduAcademy.management_system.entity.ConfirmationToken;
 import com.eduAcademy.management_system.entity.Role;
 import com.eduAcademy.management_system.mapper.ClubMapper;
 import com.eduAcademy.management_system.repository.ClubRepository;
-import com.eduAcademy.management_system.repository.ConfirmationTokenRepository;
 import com.eduAcademy.management_system.repository.RoleRepository;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,31 +31,31 @@ public class ClubService implements ClubServiceInterface {
     private static final SecureRandom random = new SecureRandom();
     private final RoleRepository roleRepository;
     private final ClubMapper clubMapper;
-    private final ConfirmationTokenRepository confirmationTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final GenerateActivationToken activationTokenService;
 
     @Override
     @PreAuthorize("hasRole('SUPERADMIN')")
-    public ClubDTO createClub(ClubDTO clubDTO) throws MessagingException {
-        Club club = clubMapper.ClubDTOToClub(clubDTO);
+    public ClubRequestDto createClub(ClubRequestDto clubRequestDto) throws MessagingException {
+        Club club = clubMapper.ClubDTOToClub(clubRequestDto);
 
-        if (clubRepository.findByEmail(clubDTO.getEmail()).isPresent()){
-            throw new IllegalArgumentException("The email " + clubDTO.getEmail() + " is already in use.");
+        if (clubRepository.findByEmail(clubRequestDto.getEmail()).isPresent()){
+            throw new IllegalArgumentException("The email " + clubRequestDto.getEmail() + " is already in use.");
         }
 
-        Set<Role> roles = clubDTO.getRoles().stream()
+        Set<Role> roles = clubRequestDto.getRoles().stream()
                 .map(roleName -> roleRepository.findByName(roleName)
                         .orElseThrow(() -> new IllegalArgumentException("Invalid role: " + roleName)))
                 .collect(Collectors.toSet());
 
         club.setRoles(roles);
-        club.setFirstName(clubDTO.getFirstName());
-        club.setLastName(clubDTO.getLastName());
-        club.setClubAddress(clubDTO.getClubAddress());
+        club.setFirstName(clubRequestDto.getFirstName());
+        club.setLastName(clubRequestDto.getLastName());
+        club.setClubAddress(clubRequestDto.getClubAddress());
         club.setCreated_at(LocalDateTime.now());
         club.setUpdated_at(LocalDateTime.now());
         club.setReference(generateUniqueReference());
-        club.setEmail(clubDTO.getEmail());
+        club.setEmail(clubRequestDto.getEmail());
         club.setActive(false);
 
         Club savedClub = clubRepository.save(club);
@@ -65,26 +64,26 @@ public class ClubService implements ClubServiceInterface {
 
     @Override
     @Transactional
-    public void activateAccount(ConfirmPassword request) {
-        Optional<ConfirmationToken> tokenOptional = confirmationTokenRepository.findByToken(request.getToken());
+    public void activateAccount(String password, String confirmPassword, String token) {
+        String email = activationTokenService.extractEmailFromActivationToken(token);
 
-        if (tokenOptional.isEmpty()) {
-            throw new IllegalArgumentException("Token invalide.");
+        boolean isValid = activationTokenService.validateActivationToken(token);
+        if (!isValid) {
+            throw new IllegalArgumentException("Invalid or expired activation token");
         }
 
-        ConfirmationToken confirmationToken = tokenOptional.get();
+        Club club = clubRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
 
-        if (confirmationToken.getExpiredAt().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Token expiré.");
+        if (club.isActive()) {
+            throw new IllegalStateException("Account is already activated");
         }
-        Club club = confirmationToken.getClub();
-        if(club.isActive()){
-            throw new IllegalArgumentException("The club is already active.");
+        if (!password.equals(confirmPassword)) {
+            throw new IllegalArgumentException("Passwords do not match");
         }
         club.setActive(true);
-        club.setPassword(passwordEncoder.encode(request.getPassword()));
-        clubRepository.save(club);
-        confirmationTokenRepository.delete(confirmationToken);
+        club.setPassword(passwordEncoder.encode(password));
+        club.setConfirmPassword(passwordEncoder.encode(confirmPassword));
     }
 
     @Override
@@ -94,6 +93,12 @@ public class ClubService implements ClubServiceInterface {
             reference = generateRandomReference();
         } while (clubRepository.existsByReference(reference));
         return reference;
+    }
+
+    @Override
+    public Page<Club> getClubs(int size,int page) {
+        Pageable pageable= PageRequest.of(page,size);
+        return clubRepository.findAll(pageable);
     }
 
     private String generateRandomReference() {

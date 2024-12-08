@@ -1,9 +1,9 @@
 package com.eduAcademy.management_system.service;
 
-import com.eduAcademy.management_system.dto.AuthenticationRequeste;
-import com.eduAcademy.management_system.dto.AuthenticationResponse;
+import com.eduAcademy.management_system.dto.AuthenticationRequestDto;
+import com.eduAcademy.management_system.dto.AuthenticationResponseDto;
 import com.eduAcademy.management_system.dto.ChangePasswordRequest;
-import com.eduAcademy.management_system.dto.RegisterRequeste;
+import com.eduAcademy.management_system.dto.RegisterRequestDto;
 import com.eduAcademy.management_system.entity.Club;
 import com.eduAcademy.management_system.entity.User;
 import com.eduAcademy.management_system.repository.ClubRepository;
@@ -16,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.security.SecureRandom;
 import java.util.Optional;
 
 @Service
@@ -29,7 +28,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final ClubRepository clubRepository;
 
-    public void register(RegisterRequeste requeste) {
+    public void register(RegisterRequestDto requeste) {
         if (userRepository.findByEmail(requeste.getEmail()).isPresent()) {
             throw new IllegalArgumentException("L'email est déjà utilisé.");
         }
@@ -44,9 +43,9 @@ public class AuthenticationService {
         userRepository.save(user);
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequeste requeste) {
-        Optional<User> userOpt = userRepository.findByEmail(requeste.getEmail());
-        Optional<Club> clubOpt = clubRepository.findByEmail(requeste.getEmail());
+    public AuthenticationResponseDto authenticate(AuthenticationRequestDto request) {
+        Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
+        Optional<Club> clubOpt = clubRepository.findByEmail(request.getEmail());
 
         if (userOpt.isEmpty() && clubOpt.isEmpty()) {
             throw new IllegalArgumentException("L'email n'existe pas.");
@@ -56,25 +55,25 @@ public class AuthenticationService {
 
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            requeste.getEmail(),
-                            requeste.getPassword()
+                            request.getEmail(),
+                            request.getPassword()
                     )
             );
             var jwtToken = jwtService.gerenateToken(user);
-            return AuthenticationResponse.builder().token(jwtToken).build();
+            return AuthenticationResponseDto.builder().token(jwtToken).build();
         }
 
         if (clubOpt.isPresent()) {
             var club = clubOpt.get();
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            requeste.getEmail(),
-                            requeste.getPassword()
+                            request.getEmail(),
+                            request.getPassword()
                     )
             );
             var jwtToken = jwtService.gerenateToken(club);
 
-            return AuthenticationResponse.builder().token(jwtToken).build();
+            return AuthenticationResponseDto.builder().token(jwtToken).build();
         }
         throw new IllegalArgumentException("Erreur d'authentification.");
     }
