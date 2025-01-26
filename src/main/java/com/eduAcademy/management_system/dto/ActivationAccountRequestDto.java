@@ -11,4 +11,5 @@ public class ActivationAccountRequestDto {
     private String password;
     private String confirmPassword;
     private String token;
+    private String entityType;
 }

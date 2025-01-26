@@ -2,11 +2,12 @@ package com.eduAcademy.management_system.service;
 
 import com.eduAcademy.management_system.dto.ClubRequestDto;
 import com.eduAcademy.management_system.entity.Club;
-import com.eduAcademy.management_system.entity.Clubonfiguration;
+import com.eduAcademy.management_system.entity.ClubConfiguration;
 import com.eduAcademy.management_system.mapper.ClubMapper;
 import com.eduAcademy.management_system.repository.ClubConfigRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ConfigurationClientService {
 
     private static final String GLOBAL_CONFIG_FILE = "src/main/resources/baseEntity.json";
@@ -49,16 +51,15 @@ public class ConfigurationClientService {
 
         String clientConfigJson = objectMapper.writeValueAsString(clientConfig);
 
-        var clubonfiguration = Clubonfiguration.builder()
+        var clubonfiguration = ClubConfiguration.builder()
                 .club(club)
-                .value(clientConfigJson)
+                .addons(clientConfigJson)
                 .build();
         clubConfigRepository.save(clubonfiguration);
 
         String token=activationToken.generateActivationToken(club.getEmail(),club.getId());
 
-        String link="http://localhost:4200/activate-account?token="+token;
-        System.out.println(token);
+        String link="http://localhost:4200/activate-account/club?token="+token;
         emailService.sendEmail(clubRequestDto.getEmail(),link);
     }
 

@@ -10,10 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -34,6 +31,7 @@ public class Club implements UserDetails {
     private String password;
     private String confirmPassword;
     private boolean active;
+    private String logo;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
     @OneToMany(mappedBy = "club")
@@ -42,20 +40,16 @@ public class Club implements UserDetails {
     private List<Terrain> terrains;
     @OneToMany(mappedBy = "club")
     private List<Staff> staffList;
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "club_Roles",
-            joinColumns = @JoinColumn(name = "club_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles = new HashSet<>();
+    @Column(name = "role")
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> roles = new ArrayList<>();
 
 
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toSet());
     }
 

@@ -33,8 +33,8 @@ public class AuthenticationService {
             throw new IllegalArgumentException("L'email est déjà utilisé.");
         }
         var user= User.builder()
-                .firstname(requeste.getFirstname())
-                .lastname(requeste.getLastname())
+                .firstName(requeste.getFirstname())
+                .lastName(requeste.getLastname())
                 .email(requeste.getEmail())
                 .password(passwordEncoder.encode(requeste.getPassword()))
                 .active(true)

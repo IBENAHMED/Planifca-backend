@@ -1,23 +1,22 @@
 package com.eduAcademy.management_system.dto;
 
+import com.eduAcademy.management_system.entity.Club;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClubResponseDto {
+public class StaffResponseDto {
+    private String email;
+    private boolean active;
+    private String clubRef;
+    private String ObjectId;
+    private String phone;
     private String firstName;
     private String lastName;
-    private String email;
-    private String clubAddress;
-    private String logo;
-    private boolean active;
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
     private List<String> roles;
 }

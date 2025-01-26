@@ -18,10 +18,9 @@ public class demoController {
 
     private static final Logger log = LoggerFactory.getLogger(demoController.class);
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @GetMapping()
     public ResponseEntity<String> demo() {
-        return ResponseEntity.ok("Access granted to admin!");
+        return ResponseEntity.ok("Access granted to this service!");
     }
 
     @GetMapping("/profile")

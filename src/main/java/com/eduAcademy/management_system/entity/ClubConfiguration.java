@@ -6,14 +6,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Clubonfiguration {
+public class ClubConfiguration {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +20,7 @@ public class Clubonfiguration {
     @ManyToOne
     @JoinColumn(name = "club_id")
     private Club club;
-    @Lob // Permet de stocker des données volumineuses comme JSON
+    @Lob
     @Column(columnDefinition = "LONGTEXT", nullable = false)
-    private String value;
+    private String addons;
 }
