@@ -3,7 +3,7 @@ package com.eduAcademy.management_system.controller;
 
 import com.eduAcademy.management_system.dto.AuthenticationRequestDto;
 import com.eduAcademy.management_system.dto.AuthenticationResponseDto;
-import com.eduAcademy.management_system.service.AuthenticationService;
+import com.eduAcademy.management_system.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +21,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class AuthenticationControllerTest {
+public class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private AuthenticationService authenticationService;
+    private UserService userService;
 
     @Test
     public void testLogin() throws Exception {
@@ -36,7 +36,7 @@ public class AuthenticationControllerTest {
         AuthenticationResponseDto responseDto = new AuthenticationResponseDto("token");
 
         // Mock du service
-        Mockito.when(authenticationService.authenticate(Mockito.any(AuthenticationRequestDto.class)))
+        Mockito.when(userService.authenticate(Mockito.any(AuthenticationRequestDto.class)))
                 .thenReturn(responseDto);
 
         // Requête JSON
@@ -55,6 +55,6 @@ public class AuthenticationControllerTest {
                 .andExpect(jsonPath("$.token").value("token"));
 
         // Vérification
-        Mockito.verify(authenticationService, Mockito.times(1)).authenticate(Mockito.any(AuthenticationRequestDto.class));
+        Mockito.verify(userService, Mockito.times(1)).authenticate(Mockito.any(AuthenticationRequestDto.class));
     }
 }

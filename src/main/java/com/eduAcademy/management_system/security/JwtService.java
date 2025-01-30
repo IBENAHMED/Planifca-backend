@@ -33,22 +33,31 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String gerenateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(),userDetails);
+    public String generateTokenForUser(UserDetails userDetails) {
+        return generateTokenWithClaims(new HashMap<>(), userDetails);
     }
 
-    public String generateToken(Map<String,Object> extractClaims, UserDetails userDetails) {
-        if (userDetails instanceof User user){
-            extractClaims.put("role",user.getRole().name());
+    public String generateTokenWithClaims(Map<String, Object> customClaims, UserDetails userDetails) {
+        if (customClaims == null) {
+            customClaims = new HashMap<>();
         }
-      return Jwts.builder()
-                .setClaims(extractClaims)
+
+        if (userDetails instanceof User user) {
+            customClaims.putAll(Map.of(
+                    "role", user.getRole().name(),
+                    "email", user.getEmail()
+            ));
+        }
+
+        return Jwts.builder()
+                .setClaims(customClaims)
                 .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000L)) // Conversion en long pour éviter les erreurs de type
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
 
     public Boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUserEmail(token);
