@@ -12,13 +12,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class RegisterRequestDto {
     private String firstname;
-
     private String lastname;
-
     private String email;
-
     private String password;
-
     private Role role;
 
 }

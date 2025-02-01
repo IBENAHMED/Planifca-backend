@@ -3,7 +3,6 @@ package com.eduAcademy.management_system.controller;
 import com.eduAcademy.management_system.dto.AuthenticationRequestDto;
 import com.eduAcademy.management_system.dto.AuthenticationResponseDto;
 import com.eduAcademy.management_system.dto.RegisterRequestDto;
-import com.eduAcademy.management_system.entity.User;
 import com.eduAcademy.management_system.service.UserService;
 import jakarta.mail.MessagingException;
 import lombok.extern.log4j.Log4j2;
