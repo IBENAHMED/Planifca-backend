@@ -11,6 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,8 +29,23 @@ public class User implements UserDetails {
     private String email;
     private String password;
     private boolean active;
+    private LocalDateTime created_at;
+    private LocalDateTime updated_at;
+    private String resetToken;
+    private LocalDateTime resetTokenExpiration;
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @PrePersist
+    public void onPrePersist() {
+        this.created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onPreUpdate() {
+        this.updated_at = LocalDateTime.now();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

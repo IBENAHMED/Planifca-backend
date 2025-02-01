@@ -5,15 +5,18 @@ import com.eduAcademy.management_system.dto.AuthenticationResponseDto;
 import com.eduAcademy.management_system.dto.RegisterRequestDto;
 import com.eduAcademy.management_system.entity.User;
 import com.eduAcademy.management_system.service.UserService;
+import jakarta.mail.MessagingException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Map;
+
 @Log4j2
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/internal/auth")
 public class UserController {
 
     private final UserService userService;
@@ -50,5 +53,29 @@ public class UserController {
         }
     }
 
+
+    @PostMapping("forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+
+        try {
+            userService.sendPasswordResetEmail(email);
+            return ResponseEntity.ok("The password reset email has been sent.");
+        } catch (MessagingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while sending the email.");
+        }
+    }
+
+    @PostMapping("reset-password")
+    public ResponseEntity<?> resetPassword(@RequestHeader("Authorization") String tokenHeader,@RequestBody Map<String, String> request) {
+        String token = tokenHeader.replace("Bearer ", "");
+        String newPassword = request.get("newPassword");
+
+        boolean success = userService.resetPassword(token, newPassword);
+        if (!success) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token.");
+        }
+        return ResponseEntity.ok(HttpStatus.ACCEPTED);
+    }
 }
 
