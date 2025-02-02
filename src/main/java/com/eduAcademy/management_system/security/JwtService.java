@@ -21,7 +21,8 @@ import java.util.function.Function;
 @Log4j2
 @Service
 public class JwtService {
-    private static final String SECRET_KEY="XolxSIM/PhSbPs+vkxIxnPeE8GW7wFFNDAapeZVJsVMo1EImeS6VGHYnvyjq75wf";
+    @Value("${SECRET_KEY}")
+    private String SECRET_KEY;
     @Value("${jwt.expiration.minutes}")
     private int expirationMinutes;
     public String extractUserEmail(String token){
@@ -44,8 +45,8 @@ public class JwtService {
 
         if (userDetails instanceof User user) {
             customClaims.putAll(Map.of(
-                    "role", user.getRole().name(),
-                    "email", user.getEmail()
+                    "role", user.getRoles(),
+                    "userId", user.getUserId()
             ));
         }
 
@@ -53,11 +54,10 @@ public class JwtService {
                 .setClaims(customClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000L)) // Conversion en long pour éviter les erreurs de type
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000L))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-
 
     public Boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUserEmail(token);
@@ -73,12 +73,11 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token){
-        return   Jwts.parserBuilder()
+        return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-
     }
 
     private Key getSignInKey() {

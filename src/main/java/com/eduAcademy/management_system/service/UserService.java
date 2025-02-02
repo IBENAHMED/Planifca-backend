@@ -3,7 +3,9 @@ package com.eduAcademy.management_system.service;
 import com.eduAcademy.management_system.dto.AuthenticationRequestDto;
 import com.eduAcademy.management_system.dto.AuthenticationResponseDto;
 import com.eduAcademy.management_system.dto.RegisterRequestDto;
+import com.eduAcademy.management_system.entity.Role;
 import com.eduAcademy.management_system.entity.User;
+import com.eduAcademy.management_system.repository.RoleRepository;
 import com.eduAcademy.management_system.repository.UserRepository;
 import com.eduAcademy.management_system.security.JwtService;
 import jakarta.mail.MessagingException;
@@ -22,20 +24,21 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -45,15 +48,26 @@ public class UserService {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new IllegalArgumentException("The email is already in use");
         }
-        var user= User.builder()
+
+        List<Role> roles = getRolesByNames(request.getRoles());
+
+        var user = User.builder()
                 .firstName(request.getFirstname())
                 .lastName(request.getLastname())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .active(true)
-                .role(request.getRole())
+                .roles(roles)
                 .build();
         userRepository.save(user);
+    }
+
+    private List<Role> getRolesByNames(List<String> roleNames) {
+
+        return roleNames.stream()
+                .map(roleName -> roleRepository.findByName(roleName)
+                        .orElseThrow(() -> new IllegalArgumentException("Role " + roleName + " not found")))
+                .collect(Collectors.toList());
     }
 
     public AuthenticationResponseDto authenticate(AuthenticationRequestDto request) {
@@ -108,7 +122,6 @@ public class UserService {
         mailSender.send(mimeMessage);
     }
 
-
     public boolean resetPassword(String token, String newPassword) {
         Optional<User> userOptional = userRepository.findByResetToken(token);
         if (userOptional.isEmpty()) {
@@ -129,7 +142,6 @@ public class UserService {
         return true;
     }
 
-
     private String loadTemplate(String templateName) {
         try {
             Path path = Paths.get("src/main/resources/EmailTemplates/" + templateName);
@@ -138,5 +150,4 @@ public class UserService {
             throw new RuntimeException("Email "+ templateName+ "template loading error.", e);
         }
     }
-
 }

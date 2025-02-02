@@ -36,25 +36,22 @@ public class UserController {
         }
     }
 
-
     @PostMapping(path = "login")
     public ResponseEntity<?> login(@RequestBody AuthenticationRequestDto authenticate) {
         try {
             AuthenticationResponseDto response = userService.authenticate(authenticate);
             return ResponseEntity.ok(response);
         } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(
-                    new AuthenticationResponseDto(e.getReason())
-            );
+            return ResponseEntity.status(e.getStatusCode())
+                    .body(new AuthenticationResponseDto(e.getReason()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new AuthenticationResponseDto("An internal error has occurred."));
         }
     }
 
-
     @PostMapping("forget-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> forgetPassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");
 
         try {
@@ -68,10 +65,10 @@ public class UserController {
     @PostMapping("reset-password")
     public ResponseEntity<Map<String, String>> resetPassword(
             @RequestHeader("X-Requested-With") String token,
-            @RequestBody Map<String, String> request) {
+            @RequestBody Map<String, String> request
+    ) {
 
         String newPassword = request.get("newPassword");
-
         boolean success = userService.resetPassword(token, newPassword);
 
         if (!success) {
@@ -82,6 +79,5 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("message", "Password has been successfully reset."));
     }
-
 }
 

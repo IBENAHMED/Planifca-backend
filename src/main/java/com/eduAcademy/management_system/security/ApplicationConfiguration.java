@@ -9,29 +9,21 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfiguration {
+
     private final UserRepository userRepository;
 
     @Bean
     public UserDetailsService userDetailsService() {
 
         return username -> {
-            var user = userRepository.findByEmail(username)
+            return userRepository.findByEmail(username)
                     .orElse(null);
-
-//            if (user == null) {
-//                var club = clubRepository.findByEmail(username)
-//                        .orElseThrow(() -> new UsernameNotFoundException("Club not found"));
-//                System.out.println("Loaded Club: " + club.getEmail());
-//                return club;
-//            }
-            return user;
         };    }
 
     @Bean
@@ -45,7 +37,6 @@ public class ApplicationConfiguration {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
-
     }
 
     @Bean

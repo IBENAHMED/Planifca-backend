@@ -1,7 +1,6 @@
 package com.eduAcademy.management_system.entity;
 
 
-import com.eduAcademy.management_system.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
