@@ -53,28 +53,35 @@ public class UserController {
     }
 
 
-    @PostMapping("forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request) {
+    @PostMapping("forget-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");
 
         try {
             userService.sendPasswordResetEmail(email);
-            return ResponseEntity.ok("The password reset email has been sent.");
+            return ResponseEntity.ok(HttpStatus.OK);
         } catch (MessagingException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while sending the email.");
         }
     }
 
     @PostMapping("reset-password")
-    public ResponseEntity<?> resetPassword(@RequestHeader("Authorization") String tokenHeader,@RequestBody Map<String, String> request) {
-        String token = tokenHeader.replace("Bearer ", "");
+    public ResponseEntity<Map<String, String>> resetPassword(
+            @RequestHeader("X-Requested-With") String token,
+            @RequestBody Map<String, String> request) {
+
         String newPassword = request.get("newPassword");
 
         boolean success = userService.resetPassword(token, newPassword);
+
         if (!success) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Invalid or expired token."));
         }
-        return ResponseEntity.ok(HttpStatus.ACCEPTED);
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .body(Map.of("message", "Password has been successfully reset."));
     }
+
 }
 

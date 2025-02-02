@@ -26,7 +26,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -86,9 +88,13 @@ public class UserService {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "UTF-8");
 
-        String token = UUID.randomUUID().toString();
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] tokenBytes = new byte[64];
+        secureRandom.nextBytes(tokenBytes);
+        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
+
         user.setResetToken(token);
-        user.setResetTokenExpiration(LocalDateTime.now().minusHours(24));
+        user.setResetTokenExpiration(LocalDateTime.now().plusHours(24));
         userRepository.save(user);
 
         String resetUrl = "http://localhost:4200/password-reset?token=" + token;
