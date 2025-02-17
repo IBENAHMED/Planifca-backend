@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Builder
-public class Terrain {
+public class Stadium {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
@@ -26,7 +26,7 @@ public class Terrain {
     @ManyToOne
     @JoinColumn(name = "club_id")
     private Club club;
-    @OneToMany(mappedBy = "terrain")
+    @OneToMany(mappedBy = "stadium")
     private List<Reservation> reservationList;
 
 }

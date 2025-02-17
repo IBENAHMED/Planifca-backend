@@ -36,6 +36,7 @@ public class SecurityConfiguration {
                         authorize -> authorize
                                 .requestMatchers(
                                         "/api/internal/auth/**",
+                                        "/api/internal/club/check-front-path/**",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
                                         "/swagger-resources/**",

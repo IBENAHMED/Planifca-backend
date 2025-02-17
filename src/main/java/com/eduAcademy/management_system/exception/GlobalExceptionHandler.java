@@ -4,13 +4,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(IllegalArgumentException.class)
+    private ResponseEntity<ApiError> buildResponseEntity(HttpStatus status, String error, String message, WebRequest request) {
+        ApiError apiError = new ApiError(
+                status.value(),
+                message,
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(apiError, status);
+    }
 
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiError> handleUnauthorizedException(Exception ex, WebRequest request) {
+        return buildResponseEntity(HttpStatus.UNAUTHORIZED, "Accès Non Autorisé", ex.getMessage(), request);
     }
 }

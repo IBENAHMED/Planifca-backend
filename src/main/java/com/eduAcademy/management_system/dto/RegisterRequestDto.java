@@ -1,6 +1,5 @@
 package com.eduAcademy.management_system.dto;
 
-import com.eduAcademy.management_system.entity.Role;
 import com.eduAcademy.management_system.enums.RoleName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

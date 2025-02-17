@@ -28,11 +28,8 @@ public class Reservation {
     private LocalDateTime updated_at;
     private PaymentStatus paymentStatus;
     @ManyToOne
-    @JoinColumn(name = "client_id")
-    private Client client;
-    @ManyToOne
-    @JoinColumn(name = "terrain_id")
-    private Terrain terrain;
+    @JoinColumn(name = "stadium_id")
+    private Stadium stadium;
     @OneToOne(mappedBy = "reservation", cascade = CascadeType.ALL)
     private Payment payment;
 }
