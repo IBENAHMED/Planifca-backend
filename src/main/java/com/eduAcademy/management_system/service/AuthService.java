@@ -7,5 +7,5 @@ import com.eduAcademy.management_system.dto.RegisterRequestDto;
 public interface AuthService {
 
     void register(RegisterRequestDto request,String clubRef);
-    AuthenticationResponseDto authenticate(AuthenticationRequestDto request);
+    AuthenticationResponseDto authenticate(AuthenticationRequestDto request,String clubRef);
 }

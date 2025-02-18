@@ -68,9 +68,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
 
-    public AuthenticationResponseDto authenticate(AuthenticationRequestDto request) {
+    public AuthenticationResponseDto authenticate(AuthenticationRequestDto request,String clubRef) {
         try {
-            User user = userRepository.findByEmail(request.getEmail())
+            User user = userRepository.findByEmailAndClubReference(request.getEmail(),clubRef)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email : " + request.getEmail()));
 
             authenticationManager.authenticate(

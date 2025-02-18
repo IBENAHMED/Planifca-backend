@@ -34,9 +34,9 @@ public class AuthController {
     }
 
     @PostMapping(path = "login")
-    public ResponseEntity<?> login(@RequestBody AuthenticationRequestDto authenticate) {
+    public ResponseEntity<?> login(@RequestBody AuthenticationRequestDto authenticate ,@RequestHeader String clubRef) {
         try {
-            AuthenticationResponseDto response = authServiceImpl.authenticate(authenticate);
+            AuthenticationResponseDto response = authServiceImpl.authenticate(authenticate,clubRef);
             return ResponseEntity.ok(response);
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode())

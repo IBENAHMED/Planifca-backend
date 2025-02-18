@@ -34,9 +34,9 @@ public class DataInitializer implements CommandLineRunner {
                 () -> {
                     Club newClub = new Club();
                     newClub.setReference("PLSA");
-                    newClub.setName("space-admin");
+                    newClub.setName("space clients");
                     newClub.setEmail("club@admin.com");
-                    newClub.setFrontPath("space-admin");
+                    newClub.setFrontPath("space-clients");
                     newClub.setLogo("/uploads/PlanifcaLogo.png");
                     newClub.setActive(true);
 
