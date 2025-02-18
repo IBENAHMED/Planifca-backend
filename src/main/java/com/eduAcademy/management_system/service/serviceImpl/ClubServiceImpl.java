@@ -3,10 +3,14 @@ package com.eduAcademy.management_system.service.serviceImpl;
 import com.eduAcademy.management_system.dto.ClubRequestDto;
 import com.eduAcademy.management_system.dto.ClubResponseDto;
 import com.eduAcademy.management_system.entity.Club;
+import com.eduAcademy.management_system.entity.User;
+import com.eduAcademy.management_system.exception.ConflictException;
+import com.eduAcademy.management_system.exception.NotFoundException;
 import com.eduAcademy.management_system.mapper.ClubMapper;
 import com.eduAcademy.management_system.repository.ClubRepository;
 import com.eduAcademy.management_system.service.ClubService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
@@ -25,9 +29,8 @@ public class ClubServiceImpl implements ClubService {
     @Override
     public ClubResponseDto createClub(ClubRequestDto requestDto) throws IOException {
 
-
         if (clubRepository.findByEmail(requestDto.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("The email is already in use");
+            throw new ConflictException("The email <'"+requestDto.getEmail()+"'> is already in use");
         }
 
         Club club= clubMapper.toClub(requestDto);
@@ -46,11 +49,6 @@ public class ClubServiceImpl implements ClubService {
 
     @Override
     public String generateUniqueReference(String name) {
-
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("The name cannot be empty.");
-        }
-
         String cleanedName = name.replaceAll("[^a-zA-Z\\s]", "").toUpperCase();
 
         StringBuilder initials = new StringBuilder();
@@ -71,6 +69,14 @@ public class ClubServiceImpl implements ClubService {
         }
 
         return reference;
+    }
+
+    @Override
+    public ClubResponseDto getClubByFrontPath(String frontPath) {
+        Club club = clubRepository.findByFrontPath(frontPath)
+                .orElseThrow(() -> new NotFoundException("club not found with path <'" + frontPath+"'>"));
+
+        return clubMapper.toClubResponseDto(club);
     }
 
 

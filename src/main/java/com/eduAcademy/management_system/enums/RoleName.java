@@ -1,5 +1,5 @@
 package com.eduAcademy.management_system.enums;
 
 public enum RoleName {
-    SUPERADMIN,ADMIN,STAFF,USER,RE
+    SUPERADMIN,ADMIN,STAFF,RESPSUIVI
 }

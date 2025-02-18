@@ -8,14 +8,19 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class ApiError {
     private int status;
     private String message;
     private String path;
+    private String error;
     private LocalDateTime timestamp;
 
-    public ApiError(int value, String message, String description) {
+    public ApiError(int status, String error, String message, String path, LocalDateTime timestamp) {
+        this.status = status;
+        this.message = message;
+        this.error = error;
+        this.path = path;
+        this.timestamp = timestamp;
     }
+
 }

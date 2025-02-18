@@ -10,6 +10,7 @@ import java.util.List;
 public interface ClubService {
     ClubResponseDto createClub(ClubRequestDto requestDto) throws IOException;
     String generateUniqueReference(String name);
+    ClubResponseDto getClubByFrontPath(String frontPath);
     void updateClub(ClubRequestDto requestDto);
     void deleteClub(ClubRequestDto requestDto);
     List<Club> getClubs();

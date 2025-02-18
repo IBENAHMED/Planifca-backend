@@ -6,11 +6,15 @@ import com.eduAcademy.management_system.dto.RegisterRequestDto;
 import com.eduAcademy.management_system.entity.Club;
 import com.eduAcademy.management_system.entity.User;
 import com.eduAcademy.management_system.enums.RoleName;
+import com.eduAcademy.management_system.exception.ConflictException;
+import com.eduAcademy.management_system.exception.NotFoundException;
+import com.eduAcademy.management_system.exception.UnauthorizedException;
 import com.eduAcademy.management_system.repository.ClubRepository;
 import com.eduAcademy.management_system.repository.UserRepository;
 import com.eduAcademy.management_system.security.JwtService;
 import com.eduAcademy.management_system.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -34,36 +38,36 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public void register(RegisterRequestDto request,String clubRef) {
+    public void register(RegisterRequestDto request, String clubRef) {
         Club club = clubRepository.findByReference(clubRef)
-                .orElseThrow(() -> new IllegalArgumentException("Club with reference " + clubRef + " not found"));
+                .orElseThrow(() -> new NotFoundException("Club with reference <" + clubRef + "> not found"));
 
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("The email is already in use");
+        if (userRepository.findByEmail(request.getEmail().trim()).isPresent()) {
+            throw new ConflictException("The email <" + request.getEmail() + "> is already in use");
         }
-
 
         List<RoleName> roleNames = request.getRoles().stream()
                 .map(role -> {
+                    String cleanedRole = role.replaceAll("[^a-zA-Z]", "").toUpperCase();
                     try {
-                        return RoleName.valueOf(role.replaceAll("[^a-zA-Z\\s]", "").toUpperCase());
+                        return RoleName.valueOf(cleanedRole);
                     } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException("Invalid role: " + role);
+                        throw new NotFoundException("Invalid role: <" + role+">");
                     }
                 })
                 .collect(Collectors.toList());
 
-
-        var user = User.builder()
-                .firstName(request.getFirstname())
-                .lastName(request.getLastname())
-                .email(request.getEmail())
+        User user = User.builder()
+                .firstName(request.getFirstname().trim())
+                .lastName(request.getLastname().trim())
+                .email(request.getEmail().trim())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .active(true)
                 .userId(generateUserId())
                 .roles(roleNames)
                 .club(club)
                 .build();
+
         userRepository.save(user);
     }
 
@@ -71,7 +75,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthenticationResponseDto authenticate(AuthenticationRequestDto request,String clubRef) {
         try {
             User user = userRepository.findByEmailAndClubReference(request.getEmail(),clubRef)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email : " + request.getEmail()));
+                    .orElseThrow(() -> new NotFoundException("User not found with email : " + request.getEmail()));
 
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
@@ -83,9 +87,9 @@ public class AuthServiceImpl implements AuthService {
                     .token(jwtToken)
                     .build();
         } catch (BadCredentialsException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Incorrect credentials", e);
-        } catch (UsernameNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found", e);
+            throw new UnauthorizedException("Incorrect credentials");
+        } catch (NotFoundException e) {
+            throw new NotFoundException("User not found");
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred", e);
         }

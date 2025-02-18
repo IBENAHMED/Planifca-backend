@@ -3,6 +3,8 @@ package com.eduAcademy.management_system.controller;
 import com.eduAcademy.management_system.dto.ClubRequestDto;
 import com.eduAcademy.management_system.dto.ClubResponseDto;
 import com.eduAcademy.management_system.entity.Club;
+import com.eduAcademy.management_system.exception.ConflictException;
+import com.eduAcademy.management_system.exception.NotFoundException;
 import com.eduAcademy.management_system.exception.UnauthorizedException;
 import com.eduAcademy.management_system.mapper.ClubMapper;
 import com.eduAcademy.management_system.repository.ClubRepository;
@@ -32,8 +34,8 @@ public class ClubController {
         try {
             return ResponseEntity.ok(clubService.createClub(requestDto));
 
-        } catch (UnauthorizedException e){
-            throw new UnauthorizedException("Access denied");
+        } catch (ConflictException e){
+            throw new ConflictException(e.getMessage());
         }
         catch (Exception e) {
             return ResponseEntity.status(500).body("Error creating club: " + e.getMessage());
@@ -65,15 +67,16 @@ public class ClubController {
                 .body(resource);
     }
 
-    @GetMapping("check-front-path/{frontPath}")
-    public ResponseEntity<ClubResponseDto> getClubByFrontPath(@PathVariable String frontPath){
-        Optional<Club> club=clubRepository.findByFrontPath(frontPath);
-        if (club.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    @GetMapping("front/{frontPath}")
+    public ResponseEntity<?> getClubByFrontPath(@PathVariable String frontPath){
+        try {
+            ClubResponseDto clubResponse = clubService.getClubByFrontPath(frontPath);
+            return ResponseEntity.status(HttpStatus.OK).body(clubResponse);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
         }
-
-        ClubResponseDto responseDto=clubMapper.toClubResponseDto(club.get());
-        return ResponseEntity.ok(responseDto);
     }
 
 }

@@ -36,7 +36,7 @@ public class SecurityConfiguration {
                         authorize -> authorize
                                 .requestMatchers(
                                         "/api/internal/auth/**",
-                                        "/api/internal/club/check-front-path/**",
+                                        "/api/internal/club/front/**",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
                                         "/swagger-resources/**",
@@ -58,7 +58,7 @@ public class SecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:4200"));
         configuration.setAllowedMethods(List.of("*"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Auth-Token"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Auth-Token","clubRef"));
         configuration.setExposedHeaders(List.of("X-Auth-Token"));
         configuration.setAllowCredentials(true);
 
