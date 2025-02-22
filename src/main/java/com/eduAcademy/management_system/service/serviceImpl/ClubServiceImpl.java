@@ -10,6 +10,9 @@ import com.eduAcademy.management_system.mapper.ClubMapper;
 import com.eduAcademy.management_system.repository.ClubRepository;
 import com.eduAcademy.management_system.service.ClubService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
@@ -91,7 +94,14 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
-    public List<Club> getClubs() {
-        return List.of();
+    public Page<ClubResponseDto> getClubs(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Club> clubs = clubRepository.findAll(pageable);
+
+        if (clubs.isEmpty()) {
+            throw new NotFoundException("No club found.");
+        }
+
+        return clubs.map(clubMapper::toClubResponseDto);
     }
 }

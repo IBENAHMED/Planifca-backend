@@ -1,11 +1,9 @@
 package com.eduAcademy.management_system.service;
 
-import com.eduAcademy.management_system.dto.AuthenticationRequestDto;
-import com.eduAcademy.management_system.dto.AuthenticationResponseDto;
-import com.eduAcademy.management_system.dto.RegisterRequestDto;
+import com.eduAcademy.management_system.dto.*;
 
 public interface AuthService {
 
-    void register(RegisterRequestDto request,String clubRef);
+    UserResponse register(UserDto request, String clubRef);
     AuthenticationResponseDto authenticate(AuthenticationRequestDto request,String clubRef);
 }

@@ -3,6 +3,7 @@ package com.eduAcademy.management_system.controller;
 import com.eduAcademy.management_system.dto.AuthenticationRequestDto;
 import com.eduAcademy.management_system.dto.AuthenticationResponseDto;
 import com.eduAcademy.management_system.dto.RegisterRequestDto;
+import com.eduAcademy.management_system.dto.UserDto;
 import com.eduAcademy.management_system.exception.ConflictException;
 import com.eduAcademy.management_system.exception.NotFoundException;
 import com.eduAcademy.management_system.exception.UnauthorizedException;
@@ -26,18 +27,17 @@ public class AuthController {
     }
 
     @PostMapping(path = "register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequestDto request,
+    public ResponseEntity<?> register(@RequestBody UserDto request,
                                            @RequestHeader String clubRef) {
         try {
-            authServiceImpl.register(request, clubRef);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            return ResponseEntity.status(HttpStatus.CREATED).body(authServiceImpl.register(request, clubRef));
         } catch (ConflictException e) {
             throw new ConflictException(e.getMessage());
         } catch (NotFoundException e) {
             throw new NotFoundException(e.getMessage());
         }  catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An internal error has occurred.");
+                    .body(e.getMessage());
         }
     }
 

@@ -5,7 +5,6 @@ import com.eduAcademy.management_system.dto.ClubResponseDto;
 import com.eduAcademy.management_system.entity.Club;
 import com.eduAcademy.management_system.exception.ConflictException;
 import com.eduAcademy.management_system.exception.NotFoundException;
-import com.eduAcademy.management_system.exception.UnauthorizedException;
 import com.eduAcademy.management_system.mapper.ClubMapper;
 import com.eduAcademy.management_system.repository.ClubRepository;
 import com.eduAcademy.management_system.service.serviceImpl.ClubServiceImpl;
@@ -13,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,6 +77,13 @@ public class ClubController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
         }
+    }
+
+    @GetMapping
+    public Page<ClubResponseDto> getClubs(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return clubService.getClubs(page, size);
     }
 
 }

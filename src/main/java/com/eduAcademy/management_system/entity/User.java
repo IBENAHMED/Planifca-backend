@@ -1,7 +1,6 @@
 package com.eduAcademy.management_system.entity;
 
 
-import com.eduAcademy.management_system.enums.RoleName;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,9 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -30,14 +27,18 @@ public class User implements UserDetails {
     private String firstName;
     private String lastName;
     private String email;
+    private String phone;
     private String password;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
     private boolean active;
-    @ElementCollection(targetClass = RoleName.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-    @Enumerated(EnumType.STRING)
-    private List<RoleName> roles=new ArrayList<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Roles> roles=new HashSet<>();
     @ManyToOne
     @JoinColumn(name = "club_id", nullable = false)
     private Club club;
@@ -59,7 +60,7 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                 .collect(Collectors.toList());
     }
 

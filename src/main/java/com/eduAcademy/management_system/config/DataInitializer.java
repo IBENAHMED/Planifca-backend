@@ -1,9 +1,11 @@
 package com.eduAcademy.management_system.config;
 
 import com.eduAcademy.management_system.entity.Club;
+import com.eduAcademy.management_system.entity.Roles;
 import com.eduAcademy.management_system.entity.User;
 import com.eduAcademy.management_system.enums.RoleName;
 import com.eduAcademy.management_system.repository.ClubRepository;
+import com.eduAcademy.management_system.repository.RolesRepository;
 import com.eduAcademy.management_system.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
@@ -17,15 +19,18 @@ import java.util.List;
 public class DataInitializer implements CommandLineRunner {
 
     private final ClubRepository clubRepository;
+    private final RolesRepository rolesRepository;
 
-    public DataInitializer(ClubRepository clubRepository) {
+    public DataInitializer(ClubRepository clubRepository,RolesRepository rolesRepository) {
         this.clubRepository = clubRepository;
+        this.rolesRepository = rolesRepository;
     }
 
     @Override
     @Transactional
     public void run(String... args) {
         createSpaceAdmin();
+        initRoles();
     }
 
     private void createSpaceAdmin() {
@@ -44,5 +49,15 @@ public class DataInitializer implements CommandLineRunner {
                     System.out.println("✅ Space Admin Club created successfully!");
                 }
         );
+    }
+
+    public void initRoles() {
+        List<String> roleNames = Arrays.asList("ADMIN", "STAFF", "SUPERADMIN");
+
+        for (String roleName : roleNames) {
+            rolesRepository.findByName(roleName)
+                    .orElseGet(() -> rolesRepository.save(new Roles(null, roleName)));
+        }
+
     }
 }

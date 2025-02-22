@@ -42,4 +42,5 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleGenericException(Exception ex, WebRequest request) {
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error has occurred.", request);
     }
+
 }
