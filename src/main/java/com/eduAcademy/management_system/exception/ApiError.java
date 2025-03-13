@@ -1,9 +1,7 @@
 package com.eduAcademy.management_system.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -13,14 +11,15 @@ public class ApiError {
     private String message;
     private String path;
     private String error;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
 
-    public ApiError(int status, String error, String message, String path, LocalDateTime timestamp) {
+    public ApiError(int status, String error, String message, String path) {
         this.status = status;
         this.message = message;
         this.error = error;
         this.path = path;
-        this.timestamp = timestamp;
+        this.timestamp = LocalDateTime.now();
     }
 
 }

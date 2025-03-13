@@ -1,15 +1,15 @@
 package com.eduAcademy.management_system.controller;
 
+
+import com.eduAcademy.management_system.dto.UserResponse;
 import com.eduAcademy.management_system.exception.NotFoundException;
 import com.eduAcademy.management_system.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,5 +27,12 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An internal error has occurred.");
         }
+    }
+
+    @GetMapping("getUserList")
+    public Page<UserResponse> getClubs(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size
+            , @RequestHeader String clubRef
+    ) {
+        return userService.getUserList(page, size,clubRef);
     }
 }

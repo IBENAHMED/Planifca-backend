@@ -29,12 +29,16 @@ public class Club {
     private String frontPath;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
-    @OneToMany(mappedBy = "club")
-    @JsonIgnore
-    private List<Stadium> stadiums;
+
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<User> users = new ArrayList<>();
 
+    @OneToMany(mappedBy = "club")
+    private List<Stadium> stadiums;
+
+//    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonIgnore
+//    private List<Reservation> reservations = new ArrayList<>();
 
     @PrePersist
     public void onPrePersist() {

@@ -45,6 +45,7 @@ public class AuthServiceImpl implements AuthService {
             throw new ConflictException("The email <" + request.getEmail() + "> is already in use");
         }
 
+
         UserDto userDto = UserDto.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())

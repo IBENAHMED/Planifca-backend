@@ -13,15 +13,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+
 
 
 @Service
 @RequiredArgsConstructor
+
 public class ClubServiceImpl implements ClubService {
 
     private final ClubMapper clubMapper;

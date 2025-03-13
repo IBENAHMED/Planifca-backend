@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -19,6 +20,7 @@ import java.time.LocalTime;
 public class Reservation {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false, unique = true)
     private String reservationId;
     private LocalDateTime reservationDate;
     private LocalTime startTime;
@@ -26,10 +28,22 @@ public class Reservation {
     private ReservationStatus reservationStatus;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
-    private PaymentStatus paymentStatus;
-    @ManyToOne
-    @JoinColumn(name = "stadium_id")
-    private Stadium stadium;
-    @OneToOne(mappedBy = "reservation", cascade = CascadeType.ALL)
-    private Payment payment;
+//    @ManyToOne
+//    @JoinColumn(name = "stadium_id")
+//    private Stadium stadium;
+//    @ManyToOne
+//    @JoinColumn(name = "club_id", nullable = false)
+//    private Club club;
+
+
+    @PrePersist
+    public void onPrePersist() {
+        this.created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onPreUpdate() {
+        this.updated_at = LocalDateTime.now();
+    }
 }

@@ -22,8 +22,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                 HttpStatus.FORBIDDEN.value(),
                 "Accès refusé",
                 "test access denied",
-                request.getContextPath(),
-                LocalDateTime.now()
+                request.getContextPath()
                 );
 
         ObjectMapper objectMapper = new ObjectMapper();

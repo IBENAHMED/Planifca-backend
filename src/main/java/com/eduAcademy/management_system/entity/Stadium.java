@@ -1,5 +1,6 @@
 package com.eduAcademy.management_system.entity;
 
+import com.eduAcademy.management_system.enums.TypeSport;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,14 +20,22 @@ public class Stadium {
     private Long id;
     private String name;
     private String terrainId;
-    private String typeSport;
+    private TypeSport typeSport;
     private int pricePerHour;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
     @ManyToOne
-    @JoinColumn(name = "club_id")
+    @JoinColumn(name = "club_id", nullable = false)
     private Club club;
-    @OneToMany(mappedBy = "stadium")
-    private List<Reservation> reservationList;
 
+    @PrePersist
+    public void onPrePersist() {
+        this.created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onPreUpdate() {
+        this.updated_at = LocalDateTime.now();
+    }
 }

@@ -11,14 +11,12 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Méthode centrale pour générer ApiError avec le chemin (path)
     private ResponseEntity<ApiError> buildErrorResponse(HttpStatus status, String message, WebRequest request) {
         ApiError apiError = new ApiError(
                 status.value(),
                 status.getReasonPhrase(),
                 message,
-                request.getDescription(false),  // Inclure le chemin de la requête (request path)
-                LocalDateTime.now()
+                request.getDescription(false)
         );
         return ResponseEntity.status(status).body(apiError);
     }
@@ -40,7 +38,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGenericException(Exception ex, WebRequest request) {
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error has occurred.", request);
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request);
     }
 
 }
