@@ -14,12 +14,15 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Table(name = "club", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"clubRef"})
+})
 public class Club {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false,name = "clubRef")
     private String reference;
     @Column(unique = true,nullable = false)
     private String email;
@@ -33,12 +36,11 @@ public class Club {
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<User> users = new ArrayList<>();
 
-    @OneToMany(mappedBy = "club")
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
     private List<Stadium> stadiums;
 
-//    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JsonIgnore
-//    private List<Reservation> reservations = new ArrayList<>();
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
+    private List<Reservation> reservations;
 
     @PrePersist
     public void onPrePersist() {

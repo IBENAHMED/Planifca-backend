@@ -1,5 +1,5 @@
 package com.eduAcademy.management_system.enums;
 
 public enum ReservationStatus {
-    FINISHED, CANCELLED, INPROGRESS;
+    FINISHED,PROGRAMMEE, CANCELLED, INPROGRESS, EXPIRED;
 }

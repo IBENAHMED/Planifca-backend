@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,18 +23,27 @@ public class Reservation {
     private Long id;
     @Column(nullable = false, unique = true)
     private String reservationId;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime reservationDate;
+    @DateTimeFormat(pattern = "HH:mm")
     private LocalTime startTime;
+    @DateTimeFormat(pattern = "HH:mm")
     private LocalTime endTime;
+    @Enumerated(EnumType.STRING)
     private ReservationStatus reservationStatus;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
-//    @ManyToOne
-//    @JoinColumn(name = "stadium_id")
-//    private Stadium stadium;
-//    @ManyToOne
-//    @JoinColumn(name = "club_id", nullable = false)
-//    private Club club;
+    @ManyToOne
+    @JoinColumn(name = "terrainId", referencedColumnName = "terrainId", nullable = false)
+    private Stadium stadium;
+    @ManyToOne
+    @JoinColumn(name = "clubRef", referencedColumnName = "clubRef", nullable = false)
+    private Club club;
+    private String clientFirstName;
+    private String clientLastName;
+    private String clientPhoneNumber;
+    private String cancelReason;
+    private String cancelBy;
 
 
     @PrePersist
