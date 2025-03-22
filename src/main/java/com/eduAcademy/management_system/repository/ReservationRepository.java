@@ -7,11 +7,13 @@ import com.eduAcademy.management_system.enums.ReservationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
@@ -21,4 +23,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
      Optional<Reservation> findByReservationId(String reservationId);
      Page<Reservation> findByClub(Club club, Pageable pageable);
      List<Reservation> findByReservationStatus(ReservationStatus reservationStatus);
+
+     @Query("SELECT r.reservationStatus, COUNT(r) FROM Reservation r WHERE r.club.reference = :clubRef GROUP BY r.reservationStatus")
+     List<Object[]> countReservationByReservationStatusAndClubReference(@Param("clubRef") String clubRef);
+
 }

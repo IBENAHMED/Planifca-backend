@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Map;
 
 
 public interface ReservationService {
@@ -26,6 +27,8 @@ public interface ReservationService {
     Page<ReservationResponseDto> getReservationsClub(int page, int size,String clubRef);
 
     void startReservation(String reservationId);
+
+    Map<String,Long> getReservationStatisticsByClub(String clubRef);
 
 
 

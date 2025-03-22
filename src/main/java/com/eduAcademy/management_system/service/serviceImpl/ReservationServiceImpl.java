@@ -33,8 +33,8 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -239,5 +239,23 @@ public class ReservationServiceImpl implements ReservationService {
         }
     }
 
+    @Override
+    public Map<String, Long> getReservationStatisticsByClub(String clubRef) {
+        List<Object[]> results = reservationRepository.countReservationByReservationStatusAndClubReference(clubRef);
+
+        Map<String, Long> statistics = new HashMap<>();
+
+        for (ReservationStatus status : ReservationStatus.values()) {
+            statistics.put(status.name(), 0L);
+        }
+
+        for (Object[] row : results) {
+            ReservationStatus status = (ReservationStatus) row[0];
+            Long count = (Long) row[1];
+            statistics.put(status.name(), count);
+        }
+
+        return statistics;
+}
 
 }

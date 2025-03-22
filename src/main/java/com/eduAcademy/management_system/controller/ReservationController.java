@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,13 +44,14 @@ public class ReservationController {
     public ResponseEntity<String> cancelReservation(@PathVariable String reservationId, @RequestBody CancelReservationDto cancelReservationDto) {
         try {
             reservationService.cancelReservation(reservationId, cancelReservationDto);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.noContent().build();
         } catch (NotFoundException e) {
             throw new NotFoundException(e.getMessage());
         } catch (ConflictException e) {
             throw new ConflictException(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());        }
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 
@@ -112,5 +114,11 @@ public class ReservationController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .contentLength(pdfContent.length)
                 .body(resource);
+    }
+
+    @GetMapping("/statistics/{clubId}")
+    public ResponseEntity<Map<String, Long>> getReservationStatisticsByClub(@PathVariable String clubId) {
+        Map<String, Long> statistics = reservationService.getReservationStatisticsByClub(clubId);
+        return ResponseEntity.ok(statistics);
     }
 }
