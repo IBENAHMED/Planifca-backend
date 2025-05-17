@@ -1,9 +1,6 @@
 package com.eduAcademy.management_system.service.serviceImpl;
 
-import com.eduAcademy.management_system.dto.CancelReservationDto;
-import com.eduAcademy.management_system.dto.ReservationDto;
-import com.eduAcademy.management_system.dto.ReservationResponseDto;
-import com.eduAcademy.management_system.dto.ReservationUpdateDto;
+import com.eduAcademy.management_system.dto.*;
 import com.eduAcademy.management_system.entity.Club;
 import com.eduAcademy.management_system.entity.Reservation;
 import com.eduAcademy.management_system.entity.Stadium;
@@ -30,10 +27,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -69,13 +68,13 @@ public class ReservationServiceImpl implements ReservationService {
         Stadium stadium=stadiumRepository.findByTerrainId(terrainId)
                 .orElseThrow(() -> new NotFoundException("stadium not found with id <'" + terrainId + "'>"));
 
-        LocalDateTime reservationDateTime = reservationDto.getReservationDate();
-        LocalTime startTime = reservationDateTime.toLocalTime();
+        LocalDate reservationDate = reservationDto.getReservationDate();
+        LocalTime startTime = reservationDto.getStartTime();
 
-        validateReservationTime(reservationDateTime, startTime, reservationDto.getEndTime());
+        validateReservationTime(reservationDate, startTime, reservationDto.getEndTime());
 
 
-        boolean isAvailable = isSlotAvailable(terrainId, reservationDateTime,
+        boolean isAvailable = isSlotAvailable(terrainId, reservationDate,
                 startTime, reservationDto.getEndTime(),"");
 
         if (!isAvailable) {
@@ -86,7 +85,7 @@ public class ReservationServiceImpl implements ReservationService {
        Reservation reservation=reservationMapper.toReservation(reservationDto);
        reservation.setClub(club);
        reservation.setStadium(stadium);
-       reservation.setReservationDate(reservationDateTime);
+       reservation.setReservationDate(reservationDate);
        reservation.setStartTime(startTime);
        reservation.setEndTime(reservationDto.getEndTime());
        reservation.setReservationId(generateReservationId());
@@ -101,7 +100,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public boolean isStadiumAvailable(String terrainId, LocalDateTime date, LocalTime startTime, LocalTime endTime) {
+    public boolean isStadiumAvailable(String terrainId, LocalDate date, LocalTime startTime, LocalTime endTime) {
         List<Reservation> existingReservations = reservationRepository.findByStadiumTerrainIdAndReservationDate(terrainId, date);
 
         for (Reservation reservation : existingReservations) {
@@ -113,7 +112,7 @@ public class ReservationServiceImpl implements ReservationService {
         return true;
     }
 
-    private boolean isSlotAvailable(String terrainId, LocalDateTime reservationDate, LocalTime startTime, LocalTime endTime,String reservationIdToIgnore) {
+    private boolean isSlotAvailable(String terrainId, LocalDate reservationDate, LocalTime startTime, LocalTime endTime,String reservationIdToIgnore) {
         boolean isAvailable = isStadiumAvailable(terrainId, reservationDate, startTime, endTime);
 
 
@@ -136,17 +135,17 @@ public class ReservationServiceImpl implements ReservationService {
         return isAvailable;
     }
 
-    private void validateReservationTime(LocalDateTime reservationDateTime, LocalTime startTime, LocalTime endTime) {
-        if (reservationDateTime.isBefore(LocalDateTime.now())) {
+    private void validateReservationTime(LocalDate reservationDateTime, LocalTime startTime, LocalTime endTime) {
+        if (reservationDateTime.isBefore(LocalDate.now())) {
             throw new ConflictException("The reservation date and time cannot be in the past.");
         }
 
         LocalTime clubOpeningTime = LocalTime.of(6, 0);
-        LocalTime clubClosingTime = LocalTime.of(1, 59);
+        LocalTime clubClosingTime = LocalTime.of(23, 0);
 
-        //if (startTime.isBefore(clubOpeningTime) || endTime.isAfter(clubClosingTime)) {
-        //    throw new ConflictException("The reservation hours must be between 6:00 AM and 11:00 PM.");
-        //}
+        if (startTime.isBefore(clubOpeningTime) || endTime.isAfter(clubClosingTime)) {
+            throw new ConflictException("The reservation hours must be between 6:00 AM and 11:00 PM.");
+        }
 
         if (startTime.isAfter(endTime)) {
             throw new ConflictException("The start time cannot be after the end time.");
@@ -184,19 +183,19 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation existingReservation =reservationRepository.findByReservationId(reservationId)
                 .orElseThrow(()-> new NotFoundException("Reservation not found with ID: " + reservationId));
 
-        LocalDateTime reservationDateTime = updateDto.getReservationDate();
-        LocalTime startTime = reservationDateTime.toLocalTime();
+        LocalDate reservationDate = updateDto.getReservationDate();
+        LocalTime startTime = updateDto.getStartTime();
 
-        validateReservationTime(reservationDateTime, startTime, updateDto.getEndTime());
+        validateReservationTime(reservationDate, startTime, updateDto.getEndTime());
 
-        boolean isAvailable = isSlotAvailable(existingReservation.getStadium().getTerrainId(), reservationDateTime,
+        boolean isAvailable = isSlotAvailable(existingReservation.getStadium().getTerrainId(), reservationDate,
                 startTime, updateDto.getEndTime(),reservationId);
 
         if (!isAvailable && !updateDto.getReservationDate().equals(existingReservation.getReservationDate())) {
             throw new ConflictException("The stadium is not available for this period!");
         }
 
-        existingReservation.setReservationDate(reservationDateTime);
+        existingReservation.setReservationDate(reservationDate);
         existingReservation.setStartTime(startTime);
         existingReservation.setEndTime(updateDto.getEndTime());
         existingReservation.setClientPhoneNumber(updateDto.getClientPhoneNumber());
@@ -231,7 +230,7 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation=reservationRepository.findByReservationId(reservationId)
                 .orElseThrow(()-> new NotFoundException("Reservation not found with ID: " + reservationId));
 
-        if (reservation.getReservationDate().toLocalDate().isEqual(LocalDate.now())){
+        if (reservation.getReservationDate().isEqual(LocalDate.now())){
             reservation.setReservationStatus(ReservationStatus.INPROGRESS);
             reservationRepository.save(reservation);
         } else {
@@ -257,5 +256,43 @@ public class ReservationServiceImpl implements ReservationService {
 
         return statistics;
 }
+
+    public List<TimeSlotDto> getAllTimeSlotsForClub(String clubRef, LocalDate date) {
+
+        List<TimeSlotDto> timeSlots = generateAllTimeSlots();
+
+        List<Reservation> reservations = reservationRepository.findByClubReferenceAndReservationDate(clubRef, date);
+
+        for (Reservation reservation : reservations) {
+            LocalTime slotStartTime = reservation.getStartTime();
+            LocalTime slotEndTime  = reservation.getEndTime();
+
+            for (TimeSlotDto slot : timeSlots) {
+                if (!slot.getEndTime().isBefore(slotStartTime) && !slot.getStartTime().isAfter(slotEndTime.minusMinutes(1))) {
+                    slot.setStatus("RESERVED");
+                }
+            }
+        }
+
+        return timeSlots;
+    }
+
+    private List<TimeSlotDto> generateAllTimeSlots() {
+        List<TimeSlotDto> timeSlots = new ArrayList<>();
+
+        LocalTime startTime = LocalTime.of(8, 0); // Heure d'ouverture (08:00)
+        LocalTime endTime = LocalTime.of(23, 0);  // Heure de fermeture (22:00)
+        Duration slotDuration = Duration.ofHours(1); // Durée d'un créneau (1h)
+
+        while (startTime.isBefore(endTime)) {
+            LocalTime nextTime = startTime.plus(slotDuration);
+            timeSlots.add(new TimeSlotDto(startTime, nextTime, "AVAILABLE"));
+            startTime = nextTime;
+        }
+
+        return timeSlots;
+    }
+
+
 
 }

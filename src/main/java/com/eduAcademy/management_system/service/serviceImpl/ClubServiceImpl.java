@@ -3,7 +3,6 @@ package com.eduAcademy.management_system.service.serviceImpl;
 import com.eduAcademy.management_system.dto.ClubRequestDto;
 import com.eduAcademy.management_system.dto.ClubResponseDto;
 import com.eduAcademy.management_system.entity.Club;
-import com.eduAcademy.management_system.entity.User;
 import com.eduAcademy.management_system.exception.ConflictException;
 import com.eduAcademy.management_system.exception.NotFoundException;
 import com.eduAcademy.management_system.mapper.ClubMapper;
@@ -13,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 
@@ -29,6 +29,7 @@ public class ClubServiceImpl implements ClubService {
     private static final String DEFAULT_LOGO = "/uploads/PlanifcaLogo.png";
 
     @Override
+    @PreAuthorize("hasRole('SUPERADMIN')")
     public ClubResponseDto createClub(ClubRequestDto requestDto) throws IOException {
 
         if (clubRepository.findByEmail(requestDto.getEmail()).isPresent()) {
@@ -83,8 +84,16 @@ public class ClubServiceImpl implements ClubService {
 
 
     @Override
-    public void updateClub(ClubRequestDto requestDto) {
+    @PreAuthorize("hasRole('SUPERADMIN')")
+    public void updateClub(ClubRequestDto requestDto,String clubRef) {
+        Club club=clubRepository.findByReference(clubRef)
+                .orElseThrow(()-> new NotFoundException("club not found with reference <'"+clubRef+"'>"));
 
+        club.setName(requestDto.getName());
+        club.setEmail(requestDto.getEmail());
+        club.setFrontPath(requestDto.getFrontPath());
+
+        clubRepository.save(club);
     }
 
     @Override

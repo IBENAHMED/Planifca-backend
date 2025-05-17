@@ -13,6 +13,8 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailAndClubReference(String email, String clubRef);
+    Optional<User> findByUserIdAndClubReference(String userId, String clubRef);
     Optional<User> findByEmail(String email);
+    Optional<User> findByUserId(String userId);
     Page<User> findByClub(Club club, Pageable pageable);
 }

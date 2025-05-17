@@ -14,16 +14,21 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
 
     private final ClubRepository clubRepository;
     private final RolesRepository rolesRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(ClubRepository clubRepository,RolesRepository rolesRepository) {
+    public DataInitializer(ClubRepository clubRepository, RolesRepository rolesRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.clubRepository = clubRepository;
         this.rolesRepository = rolesRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -31,6 +36,7 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) {
         createSpaceAdmin();
         initRoles();
+        createUser();
     }
 
     private void createSpaceAdmin() {
@@ -51,6 +57,7 @@ public class DataInitializer implements CommandLineRunner {
         );
     }
 
+
     public void initRoles() {
         List<String> roleNames = Arrays.asList("ADMIN", "STAFF", "SUPERADMIN");
 
@@ -59,5 +66,33 @@ public class DataInitializer implements CommandLineRunner {
                     .orElseGet(() -> rolesRepository.save(new Roles(null, roleName)));
         }
 
+    }
+
+    private void createUser() {
+        userRepository.findByEmail("admin@planifca.com").ifPresentOrElse(
+                user -> System.out.println("⚠️user admin already exists. Skipping creation."),
+                ()->{
+
+                    Club club=clubRepository.findByReference("PLSA")
+                            .orElseThrow(() -> new RuntimeException("clubRef not found"));
+
+                    Roles adminRole = rolesRepository.findByName("ADMIN")
+                            .orElseThrow(() -> new RuntimeException("Role ADMIN not found"));
+
+                    Set<Roles> roles = Set.of(adminRole);
+
+                    User newUser = new User();
+                    newUser.setEmail("admin@planifca.com");
+                    newUser.setUserId("1:23:19:3");
+                    newUser.setClub(club);
+                    newUser.setFirstName("admin");
+                    newUser.setLastName("admin");
+                    newUser.setPassword(passwordEncoder.encode("planifca@123"));
+                    newUser.setRoles(roles);
+                    newUser.setActive(true);
+                    userRepository.save(newUser);
+                    System.out.println("✅ user Admin  created successfully!");
+                }
+        );
     }
 }

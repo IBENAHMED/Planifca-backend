@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activation de votre compte</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            justify-content: center;
+            display: flex;
+        }
+        .container {
+            max-width: 600px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .header {
+            background-color: #2563eb;
+            color: #ffffff;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            font-size: 20px;
+        }
+        .content {
+            padding: 20px;
+            font-size: 16px;
+            color: #333333;
+        }
+        .button {
+            display: inline-block;
+            background-color: #2563eb;
+            color: #ffffff;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666666;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        🎉 Bienvenue sur Planifca
+    </div>
+    <div class="content">
+        <p>Bonjour {{firstName}} {{lastName}},</p>
+        <p>Un compte a été créé pour vous sur la plateforme <strong>Planifca</strong>.</p>
+        <p>Veuillez cliquer sur le bouton ci-dessous pour activer votre compte et définir votre mot de passe :</p>
+        <a class="button" href="{{activationUrl}}">Activer mon compte</a>
+        <p>Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :</p>
+        <p><a href="{{activationUrl}}">Activer mon compte</a></p>
+        <p>Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email.</p>
+    </div>
+    <div class="footer">
+        <p>&copy; 2024 [Planifca] - Tous droits réservés.</p>
+    </div>
+</div>
+
+</body>
+</html>

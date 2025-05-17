@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -14,8 +15,8 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @Builder
 public class ReservationUpdateDto {
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-    private LocalDateTime reservationDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate reservationDate;
     @DateTimeFormat(pattern = "HH:mm")
     private LocalTime startTime;
     @DateTimeFormat(pattern = "HH:mm")

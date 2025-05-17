@@ -10,6 +10,7 @@ import com.itextpdf.text.DocumentException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,6 +19,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -121,4 +125,25 @@ public class ReservationController {
         Map<String, Long> statistics = reservationService.getReservationStatisticsByClub(clubId);
         return ResponseEntity.ok(statistics);
     }
+
+    @GetMapping("/timeslots/{clubRef}")
+    public ResponseEntity<?> getAllTimeSlotsForClub(
+            @PathVariable String clubRef,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+
+        if (date == null) {
+            return ResponseEntity.badRequest().body("Invalid date format. Please use yyyy-MM-dd'");
+        }
+
+        try {
+            List<TimeSlotDto> timeSlots = reservationService.getAllTimeSlotsForClub(clubRef, date);
+            return ResponseEntity.ok(timeSlots);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Club not found: " + clubRef);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+        }
+    }
+
 }

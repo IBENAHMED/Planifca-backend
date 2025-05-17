@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Map;
 
 
@@ -16,7 +17,7 @@ public interface ReservationService {
 
     ReservationResponseDto createReservation(ReservationDto reservationDto,String clubRef,String terrainId);
 
-    boolean isStadiumAvailable(String terrainId, LocalDateTime date, LocalTime startTime, LocalTime endTime);
+    boolean isStadiumAvailable(String terrainId, LocalDate date, LocalTime startTime, LocalTime endTime);
 
     void cancelReservation(String reservationId, CancelReservationDto cancelReservationDto);
 
@@ -30,6 +31,6 @@ public interface ReservationService {
 
     Map<String,Long> getReservationStatisticsByClub(String clubRef);
 
+    List<TimeSlotDto> getAllTimeSlotsForClub(String clubRef, LocalDate date);
 
-
-}
+    }

@@ -23,8 +23,8 @@ public class Reservation {
     private Long id;
     @Column(nullable = false, unique = true)
     private String reservationId;
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-    private LocalDateTime reservationDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'")
+    private LocalDate reservationDate;
     @DateTimeFormat(pattern = "HH:mm")
     private LocalTime startTime;
     @DateTimeFormat(pattern = "HH:mm")

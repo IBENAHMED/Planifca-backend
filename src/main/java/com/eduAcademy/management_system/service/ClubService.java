@@ -11,7 +11,7 @@ public interface ClubService {
     ClubResponseDto createClub(ClubRequestDto requestDto) throws IOException;
     String generateUniqueReference(String name);
     ClubResponseDto getClubByFrontPath(String frontPath);
-    void updateClub(ClubRequestDto requestDto);
+    void updateClub(ClubRequestDto requestDto,String clubRef);
     void deleteClub(ClubRequestDto requestDto);
     Page<ClubResponseDto> getClubs(int page, int size);
 }
