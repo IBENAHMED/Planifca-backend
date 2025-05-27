@@ -7,7 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -19,20 +21,39 @@ import java.time.LocalTime;
 public class Reservation {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false, unique = true)
     private String reservationId;
-    private LocalDateTime reservationDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'")
+    private LocalDate reservationDate;
+    @DateTimeFormat(pattern = "HH:mm")
     private LocalTime startTime;
+    @DateTimeFormat(pattern = "HH:mm")
     private LocalTime endTime;
+    @Enumerated(EnumType.STRING)
     private ReservationStatus reservationStatus;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
-    private PaymentStatus paymentStatus;
     @ManyToOne
-    @JoinColumn(name = "client_id")
-    private Client client;
+    @JoinColumn(name = "terrainId", referencedColumnName = "terrainId", nullable = false)
+    private Stadium stadium;
     @ManyToOne
-    @JoinColumn(name = "terrain_id")
-    private Terrain terrain;
-    @OneToOne(mappedBy = "reservation", cascade = CascadeType.ALL)
-    private Payment payment;
+    @JoinColumn(name = "clubRef", referencedColumnName = "clubRef", nullable = false)
+    private Club club;
+    private String clientFirstName;
+    private String clientLastName;
+    private String clientPhoneNumber;
+    private String cancelReason;
+    private String cancelBy;
+
+
+    @PrePersist
+    public void onPrePersist() {
+        this.created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onPreUpdate() {
+        this.updated_at = LocalDateTime.now();
+    }
 }

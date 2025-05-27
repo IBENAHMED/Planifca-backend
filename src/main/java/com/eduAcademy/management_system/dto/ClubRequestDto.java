@@ -12,17 +12,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class ClubRequestDto {
-    private Long id;
-    private String firstName;
-    private String lastName;
-    private String reference;
+    private String name;
     private String email;
-    private String clubAddress;
-    private boolean active;
-    private String logo;
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
-    private List<String> roles;
+    private String frontPath;
 }

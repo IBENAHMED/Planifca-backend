@@ -3,6 +3,7 @@ package com.eduAcademy.management_system.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,13 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ClubResponseDto {
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String clubAddress;
-    private String logo;
+    private String name;
+    private String reference;
+    private String frontPath;
     private boolean active;
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
-    private List<String> roles;
 }

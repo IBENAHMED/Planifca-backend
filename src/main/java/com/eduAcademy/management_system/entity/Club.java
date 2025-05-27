@@ -1,80 +1,56 @@
 package com.eduAcademy.management_system.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Club implements UserDetails {
+@Table(name = "club", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"clubRef"})
+})
+public class Club {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String firstName;
-    private String lastName;
+    private String name;
+    @Column(unique = true, nullable = false,name = "clubRef")
     private String reference;
-    @Column(unique = true)
+    @Column(unique = true,nullable = false)
     private String email;
-    private String clubAddress;
-    private String password;
-    private String confirmPassword;
     private boolean active;
     private String logo;
+    @Column(unique = true, nullable = false)
+    private String frontPath;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
-    @OneToMany(mappedBy = "club")
-    private List<Client> clients;
-    @OneToMany(mappedBy = "club")
-    private List<Terrain> terrains;
-    @OneToMany(mappedBy = "club")
-    private List<Staff> staffList;
-    @Column(name = "role")
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> roles = new ArrayList<>();
 
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<User> users = new ArrayList<>();
 
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
+    private List<Stadium> stadiums;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                .collect(Collectors.toSet());
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
+    private List<Reservation> reservations;
+
+    @PrePersist
+    public void onPrePersist() {
+        this.created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
     }
 
-    @Override
-    public String getUsername() {
-        return email;
+    @PreUpdate
+    public void onPreUpdate() {
+        this.updated_at = LocalDateTime.now();
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return active;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return active;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return active;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return active;
-    }
 }

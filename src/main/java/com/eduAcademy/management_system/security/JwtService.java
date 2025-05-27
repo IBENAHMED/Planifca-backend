@@ -21,7 +21,8 @@ import java.util.function.Function;
 @Log4j2
 @Service
 public class JwtService {
-    private static final String SECRET_KEY="XolxSIM/PhSbPs+vkxIxnPeE8GW7wFFNDAapeZVJsVMo1EImeS6VGHYnvyjq75wf";
+    @Value("${SECRET_KEY}")
+    private String SECRET_KEY;
     @Value("${jwt.expiration.minutes}")
     private int expirationMinutes;
     public String extractUserEmail(String token){
@@ -33,19 +34,27 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String gerenateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(),userDetails);
+    public String generateTokenForUser(UserDetails userDetails) {
+        return generateTokenWithClaims(new HashMap<>(), userDetails);
     }
 
-    public String generateToken(Map<String,Object> extractClaims, UserDetails userDetails) {
-        if (userDetails instanceof User user){
-            extractClaims.put("role",user.getRole().name());
+    public String generateTokenWithClaims(Map<String, Object> customClaims, UserDetails userDetails) {
+        if (customClaims == null) {
+            customClaims = new HashMap<>();
         }
-      return Jwts.builder()
-                .setClaims(extractClaims)
+
+        if (userDetails instanceof User user) {
+            customClaims.putAll(Map.of(
+                    "role", user.getRoles(),
+                    "userId", user.getUserId()
+            ));
+        }
+
+        return Jwts.builder()
+                .setClaims(customClaims)
                 .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000L))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -64,12 +73,11 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token){
-        return   Jwts.parserBuilder()
+        return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-
     }
 
     private Key getSignInKey() {
