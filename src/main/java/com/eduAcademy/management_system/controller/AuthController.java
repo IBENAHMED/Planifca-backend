@@ -40,23 +40,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest request) {
-        try {
-            userPasswordService.changeUserPassword(request);
-            return ResponseEntity.ok().build();
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
-        } catch (ConflictException e) {
-            throw new ConflictException(e.getMessage());
-        }catch (com.eduAcademy.management_system.exception.BadRequestException e) {
-            throw new com.eduAcademy.management_system.exception.BadRequestException(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
-
-    @PostMapping("/forgot-password")
+    @PostMapping("/forget-password")
     public ResponseEntity<?> forgotPassword(@RequestBody RestPasswordDto restPasswordDto, @RequestHeader String clubRef){
         try {
             userPasswordService.forgotPassword(restPasswordDto.getEmail(),clubRef);

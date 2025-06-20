@@ -31,9 +31,9 @@ public class PasswordServiceImpl implements UserPasswordService {
 
 
     @Override
-    public void changeUserPassword(PasswordChangeRequest passwordChangeRequest) throws BadRequestException {
-        User user = userRepository.findByEmail(passwordChangeRequest.getEmail())
-                .orElseThrow(() -> new NotFoundException("User not found with email: " + passwordChangeRequest.getEmail()));
+    public void changeUserPassword(PasswordChangeRequest passwordChangeRequest,String email ,String clubRef) throws BadRequestException {
+        User user = userRepository.findByEmailAndClubReference(email,clubRef)
+                .orElseThrow(() -> new NotFoundException("User not found with email: " + email));
 
         if (!passwordEncoder.matches(passwordChangeRequest.getOldPassword(), user.getPassword())) {
             throw new ConflictException("Old password incorrect");

@@ -1,6 +1,7 @@
 package com.eduAcademy.management_system.controller;
 
 
+import com.eduAcademy.management_system.dto.PasswordChangeRequest;
 import com.eduAcademy.management_system.dto.UserDto;
 import com.eduAcademy.management_system.dto.UserResponse;
 
@@ -90,6 +91,22 @@ public class UserController {
             throw new NotFoundException(e.getMessage());
         } catch (IOException | MessagingException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @PostMapping("/change-password/{email}")
+    public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest request, @PathVariable String email, @RequestHeader String clubRef) {
+        try {
+            userPasswordService.changeUserPassword(request,email,clubRef);
+            return ResponseEntity.ok().build();
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (ConflictException e) {
+            throw new ConflictException(e.getMessage());
+        }catch (com.eduAcademy.management_system.exception.BadRequestException e) {
+            throw new com.eduAcademy.management_system.exception.BadRequestException(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }
