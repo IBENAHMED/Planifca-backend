@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public interface UserPasswordService {
 
-     void changeUserPassword(PasswordChangeRequest passwordChangeRequest) throws BadRequestException;
+     void changeUserPassword(PasswordChangeRequest passwordChangeRequest,String email ,String clubRef) throws BadRequestException;
 
      void forgotPassword(String email, String clubRef) throws MessagingException, IOException;
 

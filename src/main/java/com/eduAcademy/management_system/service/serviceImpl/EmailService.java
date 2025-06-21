@@ -36,14 +36,14 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    public void sendEmailActivationAccount(String toEmail,String firstName,String lastName,String userId) throws MessagingException, IOException {
+    public void sendEmailActivationAccount(String toEmail,String firstName,String lastName,String userId,String frontPath) throws MessagingException, IOException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
         String emailContent = loadEmailTemplate("activationAccount.html")
                 .replace("{{firstName}}", firstName)
                 .replace("{{lastName}}", lastName)
-                .replace("{{activationUrl}}","http://localhost:4200/activate-account?userId="+userId);
+                .replace("{{activationUrl}}","http://localhost:4200/activate-account?club="+frontPath+"?userId="+userId);
 
 
         helper.setFrom("no-reply@planifca.com");

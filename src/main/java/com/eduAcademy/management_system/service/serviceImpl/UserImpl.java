@@ -56,7 +56,7 @@ public class UserImpl implements UserService {
         Club club = clubRepository.findByReference(clubRef)
                 .orElseThrow(() -> new NotFoundException("Club with reference <" + clubRef + "> not found"));
 
-        if (userRepository.findByEmailAndClubReference(request.getEmail(), clubRef).isPresent()) {
+        if (!userRepository.findByEmailAndClubReference(request.getEmail(), clubRef).isEmpty()) {
             throw new ConflictException("The email <" + request.getEmail() + "> is already in use");
         }
 
@@ -73,7 +73,7 @@ public class UserImpl implements UserService {
         User user= userMapper.userDtoToUser(userDto);
         user.setUserId(generateUserId());
         userRepository.save(user);
-        emailService.sendEmailActivationAccount(request.getEmail(),request.getFirstName(),request.getLastName(),user.getUserId());
+        emailService.sendEmailActivationAccount(request.getEmail(),request.getFirstName(),request.getLastName(),user.getUserId(),club.getFrontPath());
 
         return userMapper.userToUserResponse(user);
     }
