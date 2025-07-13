@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public abstract class UserMapper {
 
     @Autowired
-    protected RolesRepository roleRepository;  // Injection du repository
+    protected RolesRepository roleRepository;
 
     @Mapping(source = "roles", target = "roles", qualifiedByName = "mapRolesToStrings")
     public abstract UserDto userToUserDto(User user);
@@ -39,7 +39,7 @@ public abstract class UserMapper {
     @Named("mapStringsToRoles")
     protected Set<Roles> mapStringsToRoles(Set<String> roleNames) {
         return roleNames.stream()
-                .map(roleName -> roleRepository.findByName(roleName) // On récupère l'objet depuis la base
+                .map(roleName -> roleRepository.findByName(roleName)
                         .orElseThrow(() -> new RuntimeException("Role not found: " + roleName)))
                 .collect(Collectors.toSet());
     }

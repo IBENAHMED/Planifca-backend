@@ -280,9 +280,9 @@ public class ReservationServiceImpl implements ReservationService {
     private List<TimeSlotDto> generateAllTimeSlots() {
         List<TimeSlotDto> timeSlots = new ArrayList<>();
 
-        LocalTime startTime = LocalTime.of(8, 0); // Heure d'ouverture (08:00)
-        LocalTime endTime = LocalTime.of(23, 0);  // Heure de fermeture (22:00)
-        Duration slotDuration = Duration.ofHours(1); // Durée d'un créneau (1h)
+        LocalTime startTime = LocalTime.of(8, 0);
+        LocalTime endTime = LocalTime.of(23, 0);
+        Duration slotDuration = Duration.ofHours(1);
 
         while (startTime.isBefore(endTime)) {
             LocalTime nextTime = startTime.plus(slotDuration);

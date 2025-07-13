@@ -8,5 +8,6 @@ import java.util.List;
 public interface StadiumService {
 
     StadiumResponse addStadium(StadiumDto stadiumDto, String clubRef);
+
     List<StadiumResponse> getStadiumsBySportAndClub(String clubRef,String typeSport);
 }

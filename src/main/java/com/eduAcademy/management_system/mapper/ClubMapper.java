@@ -12,12 +12,7 @@ import java.io.IOException;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ClubMapper {
 
-    // Transformer l'entité Club en DTO de réponse
-   //@Mapping(target = "logo", source = "logo")
     ClubResponseDto toClubResponseDto(Club club);
 
-    // Transformer le DTO de requête en entité Club
-    //@Mapping(target = "logo", expression = "java(mapMultipartFileToString(clubRequestDto.getLogo(), fileStorageService))")
     Club toClub(ClubRequestDto clubRequestDto);
-
 }
