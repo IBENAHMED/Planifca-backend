@@ -76,7 +76,7 @@ public class DataInitializer implements CommandLineRunner {
                     Club club=clubRepository.findByReference("PLSA")
                             .orElseThrow(() -> new RuntimeException("clubRef not found"));
 
-                    Roles adminRole = rolesRepository.findByName("ADMIN")
+                    Roles adminRole = rolesRepository.findByName("SUPERADMIN")
                             .orElseThrow(() -> new RuntimeException("Role ADMIN not found"));
 
                     Set<Roles> roles = Set.of(adminRole);
