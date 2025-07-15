@@ -13,4 +13,5 @@ public interface StadiumRepository extends JpaRepository<Stadium, Long> {
     List<StadiumResponse> findByTypeSport(TypeSport typeSport);
     List<Stadium> findByClubAndTypeSport(Club club, TypeSport typeSport);
     Optional<Stadium> findByTerrainId(String terrainId);
+    Optional<Stadium> findByTerrainIdAndClub(String terrainId, Club clubRef);
 }

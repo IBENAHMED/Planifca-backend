@@ -31,6 +31,6 @@ public interface ReservationService {
 
     Map<String,Long> getReservationStatisticsByClub(String clubRef);
 
-    List<TimeSlotDto> getAllTimeSlotsForClub(String clubRef, LocalDate date);
+    List<TimeSlotDto> getAllTimeSlotsForWeek(String clubRef, LocalDate date,LocalDate endTime,String terrainId);
 
     }

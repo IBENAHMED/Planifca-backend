@@ -126,21 +126,23 @@ public class ReservationController {
         return ResponseEntity.ok(statistics);
     }
 
-    @GetMapping("/timeslots/{clubRef}")
+    @GetMapping("/timeslots/{terrainId}")
     public ResponseEntity<?> getAllTimeSlotsForClub(
-            @PathVariable String clubRef,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @RequestHeader String clubRef,
+            @PathVariable String terrainId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
 
-        if (date == null) {
+        if (startDate == null || endDate == null) {
             return ResponseEntity.badRequest().body("Invalid date format. Please use yyyy-MM-dd'");
         }
 
         try {
-            List<TimeSlotDto> timeSlots = reservationService.getAllTimeSlotsForClub(clubRef, date);
+            List<TimeSlotDto> timeSlots = reservationService.getAllTimeSlotsForWeek(clubRef, startDate,endDate,terrainId);
             return ResponseEntity.ok(timeSlots);
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Club not found: " + clubRef);
+            throw new NotFoundException(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }

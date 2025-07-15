@@ -28,6 +28,14 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
      @Query("SELECT r.reservationStatus, COUNT(r) FROM Reservation r WHERE r.club.reference = :clubRef GROUP BY r.reservationStatus")
      List<Object[]> countReservationByReservationStatusAndClubReference(@Param("clubRef") String clubRef);
 
-     @Query("SELECT r FROM Reservation r WHERE r.club.reference = :clubRef AND r.reservationDate = :date")
-     List<Reservation> findByClubReferenceAndReservationDate(@Param("clubRef") String clubRef, @Param("date") LocalDate date);
+//     @Query("SELECT r FROM Reservation r WHERE r.club.reference = :clubRef AND r.reservationDate = :date AND r.stadium.terrainId= :terrainId")
+//     List<Reservation> findByClubReferenceAndReservationDateAndStadiumTerrainId(@Param("clubRef") String clubRef, @Param("date") LocalDate date, @Param("terrainId") String terrainId);
+
+     @Query("SELECT r FROM Reservation r WHERE r.club.reference = :clubRef AND r.reservationDate BETWEEN :startDate AND :endDate AND r.stadium.terrainId = :terrainId")
+     List<Reservation> findByClubReferenceAndReservationDateBetweenAndStadiumTerrainId(
+             @Param("clubRef") String clubRef,
+             @Param("startDate") LocalDate startDate,
+             @Param("endDate") LocalDate endDate,
+             @Param("terrainId") String terrainId);
+
 }

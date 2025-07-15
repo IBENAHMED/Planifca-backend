@@ -257,37 +257,67 @@ public class ReservationServiceImpl implements ReservationService {
         return statistics;
 }
 
-    public List<TimeSlotDto> getAllTimeSlotsForClub(String clubRef, LocalDate date) {
+    public List<TimeSlotDto> getAllTimeSlotsForWeek(String clubRef, LocalDate startDate, LocalDate endDate, String terrainId) {
+        Club club = clubRepository.findByReference(clubRef)
+                .orElseThrow(() -> new NotFoundException("Club not found with ID: " + clubRef));
 
-        List<TimeSlotDto> timeSlots = generateAllTimeSlots();
+        Stadium stadium = stadiumRepository.findByTerrainIdAndClub(terrainId, club)
+                .orElseThrow(() -> new NotFoundException("Stadium not found with ID: " + terrainId));
 
-        List<Reservation> reservations = reservationRepository.findByClubReferenceAndReservationDate(clubRef, date);
+        List<Reservation> reservations = reservationRepository.findByClubReferenceAndReservationDateBetweenAndStadiumTerrainId(
+                clubRef, startDate, endDate, terrainId
+        );
 
-        for (Reservation reservation : reservations) {
-            LocalTime slotStartTime = reservation.getStartTime();
-            LocalTime slotEndTime  = reservation.getEndTime();
+        List<TimeSlotDto> allTimeSlots = new ArrayList<>();
+
+        LocalDate currentDate = startDate;
+        while (!currentDate.isAfter(endDate)) {
+            LocalDate dateToCheck = currentDate;
+
+            List<TimeSlotDto> timeSlots = generateAllTimeSlots();
 
             for (TimeSlotDto slot : timeSlots) {
-                if (!slot.getEndTime().isBefore(slotStartTime) && !slot.getStartTime().isAfter(slotEndTime.minusMinutes(1))) {
-                    slot.setStatus("RESERVED");
+                slot.setReservationDate(currentDate);
+            }
+
+            List<Reservation> dayReservations = reservations.stream()
+                    .filter(r -> r.getReservationDate().equals(dateToCheck))
+                    .toList();
+
+            for (Reservation reservation : dayReservations) {
+                LocalTime slotStartTime = reservation.getStartTime();
+                LocalTime slotEndTime = reservation.getEndTime();
+
+                for (TimeSlotDto slot : timeSlots) {
+                    boolean overlap = slot.getStartTime().isBefore(slotEndTime) && slotStartTime.isBefore(slot.getEndTime());
+                    if (overlap) {
+                        slot.setStatus("RESERVED");
+                    }
                 }
             }
-        }
 
-        return timeSlots;
+            currentDate = currentDate.plusDays(1);
+            allTimeSlots.addAll(timeSlots);
+        }
+        return allTimeSlots;
     }
+
 
     private List<TimeSlotDto> generateAllTimeSlots() {
         List<TimeSlotDto> timeSlots = new ArrayList<>();
-
-        LocalTime startTime = LocalTime.of(8, 0); // Heure d'ouverture (08:00)
-        LocalTime endTime = LocalTime.of(23, 0);  // Heure de fermeture (22:00)
-        Duration slotDuration = Duration.ofHours(1); // Durée d'un créneau (1h)
+        LocalTime startTime = LocalTime.of(6, 0);
+        LocalTime endTime = LocalTime.of(23, 0);
 
         while (startTime.isBefore(endTime)) {
-            LocalTime nextTime = startTime.plus(slotDuration);
-            timeSlots.add(new TimeSlotDto(startTime, nextTime, "AVAILABLE"));
-            startTime = nextTime;
+            LocalTime slotEnd = startTime.plusHours(1);
+
+            TimeSlotDto slot = new TimeSlotDto();
+            slot.setStartTime(startTime);
+            slot.setEndTime(slotEnd);
+            slot.setStatus("AVAILABLE");
+
+            timeSlots.add(slot);
+            startTime = slotEnd;
         }
 
         return timeSlots;
