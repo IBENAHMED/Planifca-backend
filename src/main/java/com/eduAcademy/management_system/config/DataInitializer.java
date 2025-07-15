@@ -76,10 +76,13 @@ public class DataInitializer implements CommandLineRunner {
                     Club club=clubRepository.findByReference("PLSA")
                             .orElseThrow(() -> new RuntimeException("clubRef not found"));
 
-                    Roles adminRole = rolesRepository.findByName("SUPERADMIN")
+                    Roles adminRole = rolesRepository.findByName("ADMIN")
                             .orElseThrow(() -> new RuntimeException("Role ADMIN not found"));
 
-                    Set<Roles> roles = Set.of(adminRole);
+                    Roles superAdminRole = rolesRepository.findByName("SUPERADMIN")
+                            .orElseThrow(() -> new RuntimeException("Role SUPERADMIN not found"));
+
+                    Set<Roles> roles = Set.of(adminRole, superAdminRole);
 
                     User newUser = new User();
                     newUser.setEmail("admin@planifca.com");
@@ -87,9 +90,9 @@ public class DataInitializer implements CommandLineRunner {
                     newUser.setClub(club);
                     newUser.setFirstName("admin");
                     newUser.setLastName("admin");
-                    newUser.setPassword(passwordEncoder.encode("planifca@123"));
                     newUser.setRoles(roles);
                     newUser.setActive(true);
+                    newUser.setPassword(passwordEncoder.encode("planifca@123"));
                     userRepository.save(newUser);
                     System.out.println("✅ user Admin  created successfully!");
                 }
